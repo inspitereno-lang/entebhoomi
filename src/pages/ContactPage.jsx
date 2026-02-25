@@ -65,7 +65,7 @@ export default function ContactPage() {
                             <div>
                                 <h3 className="font-bold text-[#151d0c] text-lg mb-1">Call Us</h3>
                                 <p className="text-[#666666]">
-                                    +91 98765 43210<br />
+                                    +91 00000 00000<br />
                                     Mon-Fri, 9am - 6pm
                                 </p>
                             </div>

@@ -1,8 +1,21 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
 export default function AboutPage() {
+    const navigate = useNavigate();
+
     return (
-        <div className="min-h-screen bg-[#fafcf8] font-sans">
+        <div className="min-h-screen bg-[#fafcf8] font-sans relative">
+            {/* Back Button */}
+            <button
+                onClick={() => navigate(-1)}
+                className="absolute top-6 left-6 z-50 flex items-center justify-center gap-2 bg-black/40 hover:bg-[#5bab00] text-white px-4 py-2 rounded-full backdrop-blur-md transition-all border border-white/20 shadow-lg"
+            >
+                <ArrowLeft className="w-5 h-5" />
+                <span className="font-bold text-sm hidden sm:block">Back</span>
+            </button>
+
             {/* Hero Section */}
             <section className="bg-[#151d0c] relative overflow-hidden py-32 md:py-44">
                 <div className="absolute inset-0 bg-[url('/Tropical%20coconut%20plantation_.jpeg')] bg-cover bg-center bg-no-repeat"></div>

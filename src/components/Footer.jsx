@@ -46,7 +46,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3 group">
                 <span className="material-symbols-outlined text-[#5bab00] group-hover:rotate-12 transition-transform">call</span>
-                <span>+91 98765 43210</span>
+                <span>+91 00000 00000</span>
               </li>
             </ul>
           </div>

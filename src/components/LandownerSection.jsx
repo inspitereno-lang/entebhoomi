@@ -82,7 +82,7 @@ export default function LandownerSection() {
           </div>
           <div className="w-full md:w-5/12 lg:w-1/2 flex justify-center md:justify-end">
             <img
-              src="/aerial-view-vibrant-agricultural-landscape-with-diverse-crops.jpg"
+              src="/aerial-view-vibrant-agricultural-landscape-with-diverse-crops.webp"
               alt="Aerial view of vibrant agricultural landscape"
               className="rounded-2xl shadow-xl object-cover w-full h-[300px] md:h-[400px]"
             />
@@ -95,7 +95,7 @@ export default function LandownerSection() {
             {/* Background Image */}
             <div
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-              style={{ backgroundImage: "url('/Gemini_Generated_Image_t0dzv8t0dzv8t0dz.png')" }}
+              style={{ backgroundImage: "url('/Gemini_Generated_Image_t0dzv8t0dzv8t0dz.webp')" }}
             ></div>
             {/* Dark Gradient Overlay for Readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#151d0c]/95 via-[#151d0c]/80 to-transparent"></div>
@@ -146,7 +146,7 @@ export default function LandownerSection() {
             {/* Background Image */}
             <div
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-              style={{ backgroundImage: "url('/landscape-sugar-palm-rice-field.jpg')" }}
+              style={{ backgroundImage: "url('/landscape-sugar-palm-rice-field.webp')" }}
             ></div>
             {/* Dark Gradient Overlay for Readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#151d0c]/95 via-[#151d0c]/80 to-transparent"></div>
@@ -196,7 +196,7 @@ export default function LandownerSection() {
             {/* Background Image */}
             <div
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-              style={{ backgroundImage: "url('/fields-bali-are-photographed-from-drone.jpg')" }}
+              style={{ backgroundImage: "url('/fields-bali-are-photographed-from-drone.webp')" }}
             ></div>
             {/* Dark Gradient Overlay for Readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#151d0c]/95 via-[#151d0c]/80 to-transparent"></div>
@@ -246,7 +246,7 @@ export default function LandownerSection() {
             {/* Background Image */}
             <div
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-              style={{ backgroundImage: "url('/view-green-palm-tree-species-with-beautiful-foliage.jpg')" }}
+              style={{ backgroundImage: "url('/view-green-palm-tree-species-with-beautiful-foliage.webp')" }}
             ></div>
             {/* Dark Gradient Overlay for Readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#151d0c]/95 via-[#151d0c]/80 to-transparent"></div>
@@ -326,7 +326,7 @@ export default function LandownerSection() {
                         onChange={handleInputChange}
                         required
                         className="w-full rounded-lg border border-gray-300 bg-[#fafcf8] px-4 py-2.5 text-[#151d0c] focus:border-[#5bab00] focus:ring-1 focus:ring-[#5bab00]"
-                        placeholder="+91 98765 43210"
+                        placeholder="+91 00000 00000"
                         type="tel"
                       />
                     </div>

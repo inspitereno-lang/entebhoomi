@@ -164,7 +164,7 @@ export default function OrderTrackingPage() {
                 </div>
                 <div>
                   <p className="font-medium text-[#1A1A1A]">Delivery Partner</p>
-                  <p className="text-sm text-[#666666]">+91 98765 43210</p>
+                  <p className="text-sm text-[#666666]">+91 00000 00000</p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
