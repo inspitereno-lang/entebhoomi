@@ -111,6 +111,7 @@ export default function Navigation() {
     { label: 'Products', path: '/products' },
     { label: 'About', path: '/about' },
     { label: 'Orders', path: '/orders' },
+    { label: 'Contact', path: '/contact' },
   ];
 
   return (

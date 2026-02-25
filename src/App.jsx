@@ -22,6 +22,7 @@ import ReferEarnPage from './pages/ReferEarnPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import TermsPage from './pages/TermsPage.jsx';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage.jsx';
+import ContactPage from './pages/ContactPage.jsx';
 import { Toaster } from './components/ui/sonner.jsx';
 import ScrollToTop from './components/ScrollToTop.jsx';
 
@@ -59,6 +60,7 @@ function AppContent() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="*" element={<HomePage />} />
         </Routes>
       </main>

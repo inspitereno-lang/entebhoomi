@@ -63,12 +63,9 @@ export default function LoginPage() {
 
         <div className="bg-white rounded-3xl shadow-xl shadow-black/5 p-8">
           <div className="text-center mb-8">
-            <div className="h-16 flex items-center justify-center mx-auto mb-4">
-              <img
-                src="/thakkalies_horizontal_logo.svg"
-                alt="Thakkalies"
-                className="h-full w-auto object-contain"
-              />
+            <div className="h-16 flex items-center justify-center mx-auto mb-4 gap-2">
+              <span className="material-symbols-outlined text-4xl text-[#5bab00]">eco</span>
+              <h2 className="text-3xl font-bold text-[#151d0c]">Ente Bhoomi</h2>
             </div>
             <h1 className="text-2xl font-bold text-[#1A1A1A]">Welcome Back</h1>
             <p className="text-[#666666] mt-2">

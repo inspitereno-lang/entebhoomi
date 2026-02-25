@@ -141,35 +141,36 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
-      <section className="relative overflow-hidden w-full px-4 pt-6 lg:px-10">
-        <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl shadow-lg relative min-h-[500px] h-[500px] bg-gray-100 group">
+      <section className="relative w-full">
+        <div className="w-full relative min-h-[500px] h-[60vh] md:min-h-[600px] bg-gray-100 group">
 
           {/* Banner Slides */}
           {banners.length > 0 ? (
             banners.map((banner, index) => (
               <div
                 key={banner._id || index}
-                className={`absolute inset-0 bg-cover bg-center flex items-center transition-opacity duration-700 ease-in-out ${currentSlide === index ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                className={`absolute inset-0 bg-cover bg-center flex items-center transition-opacity duration-1000 ease-in-out ${currentSlide === index ? 'opacity-100 z-10' : 'opacity-0 z-0'
                   }`}
                 style={{
-                  backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), url('${normalizeImageUrl(banner.image)}')`
+                  backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), url('${normalizeImageUrl(banner.image)}')`
                 }}
               >
                 <div className="relative z-10 flex flex-col gap-6 p-8 md:p-16 max-w-3xl">
-                  <h1 className="text-4xl font-black leading-tight text-white md:text-6xl tracking-tight drop-shadow-lg">
+                  <h1 className="text-4xl font-black leading-tight text-white md:text-6xl tracking-tight drop-shadow-sm">
                     {banner.title || (
                       <>Pure, Fresh, from <span className="text-[#dceacd]">Ente Bhoomi</span></>
                     )}
                   </h1>
-                  <p className="text-lg font-medium text-white/90 md:text-xl max-w-xl drop-shadow-md">
+                  <p className="text-lg font-medium text-white/90 md:text-xl max-w-xl drop-shadow-sm">
                     {banner.description || "Connecting you with nature's finest agricultural products directly from the heart of Kerala's soil."}
                   </p>
-                  <div className="flex flex-wrap gap-4 pt-4">
+                  <div className="flex flex-wrap gap-4 pt-6">
                     <button
                       onClick={() => banner.link ? (banner.link.startsWith('http') ? window.open(banner.link, '_blank') : navigate(banner.link)) : navigate('/products')}
-                      className="inline-flex h-12 items-center justify-center rounded-lg bg-[#5bab00] px-8 text-base font-bold text-white shadow-md transition-transform hover:scale-105 hover:bg-[#4a8a00]"
+                      className="inline-flex h-14 items-center justify-center rounded-xl bg-[#5bab00] px-10 text-lg font-bold text-white shadow-[0_8px_30px_rgb(91,171,0,0.4)] transition-all hover:scale-105 hover:shadow-[0_8px_40px_rgb(91,171,0,0.6)] hover:bg-[#4a8a00]"
                     >
                       Shop Now
+                      <ArrowRight className="w-5 h-5 ml-2" />
                     </button>
                   </div>
                 </div>
@@ -203,8 +204,8 @@ export default function HomePage() {
                     key={index}
                     onClick={() => setCurrentSlide(index)}
                     className={`h-2.5 rounded-full transition-all duration-300 ${currentSlide === index
-                        ? 'bg-[#5bab00] w-8'
-                        : 'bg-white/50 w-2.5 hover:bg-white'
+                      ? 'bg-[#5bab00] w-8'
+                      : 'bg-white/50 w-2.5 hover:bg-white'
                       }`}
                   />
                 ))}
@@ -217,7 +218,7 @@ export default function HomePage() {
 
       <section className="px-4 py-12 lg:px-10">
         <div className="mx-auto max-w-7xl">
-          <h2 className="text-2xl font-bold text-[#151d0c] mb-8 tracking-tight md:text-3xl">Shop by Category</h2>
+          <h2 className="text-2xl font-bold text-[#151d0c] mb-8 tracking-tight md:text-3xl">Shop by Categories</h2>
           <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
             {categoriesData.map((category, index) => {
               return (
@@ -320,7 +321,7 @@ export default function HomePage() {
 
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-medium text-[#4b5f3e] line-clamp-1">
-                        {product.unit || "Premium Quality"}
+                        {product.unit || "Products"}
                       </p>
                       <p className="font-bold text-[#5bab00]">₹{product.price}</p>
                     </div>

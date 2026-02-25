@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { toast } from 'sonner';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useStore } from '../context/StoreContext.jsx';
+import { submitLandownerEnquiryApi } from '../services/landownerService.js';
 
 export default function LandownerSection() {
   const [formData, setFormData] = useState({
@@ -15,6 +17,8 @@ export default function LandownerSection() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
+  const { isRegistered } = useStore();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -29,198 +33,261 @@ export default function LandownerSection() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.phone || !formData.location || !formData.area) {
+    if (!formData.name || !formData.phone || !formData.location || !formData.area || !formData.model) {
       toast.error('Please fill in all required fields');
       return;
     }
 
     setIsSubmitting(true);
-    // Simulate API submission
-    setTimeout(() => {
+
+    try {
+      const submitData = new FormData();
+      submitData.append('partnershipOption', formData.model);
+      submitData.append('name', formData.name);
+      submitData.append('phoneNumber', formData.phone);
+      submitData.append('location', formData.location);
+      submitData.append('areaSize', formData.area);
+
+      if (formData.email) {
+        submitData.append('email', formData.email);
+      }
+
+      if (formData.image) {
+        submitData.append('images', formData.image);
+      }
+
+      await submitLandownerEnquiryApi(submitData);
+
       toast.success('Your application has been submitted successfully.');
       setFormData({ model: '', location: '', area: '', name: '', phone: '', email: '', image: null });
       if (fileInputRef.current) fileInputRef.current.value = "";
-      setIsSubmitting(false);
       setIsModalOpen(false);
-    }, 1500);
+    } catch (error) {
+      toast.error(error.msg || error.message || 'Failed to submit application. Please try again.');
+      console.error("Submission error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <section className="bg-gradient-to-b from-[#f2f7ed] to-white px-4 py-20 lg:px-10">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-12 flex flex-col gap-4 text-center md:text-left md:flex-row md:items-end md:justify-between">
-          <div className="max-w-2xl">
-            <span className="mb-2 block text-sm font-bold uppercase tracking-wider text-[#5bab00]">For Landowners</span>
-            <h2 className="text-3xl font-black text-[#151d0c] md:text-4xl lg:text-5xl">🌱 Partnership Models for Landowners - Ente Bhoomi Agro LLP</h2>
-            <p className="mt-4 text-lg text-[#4b5f3e]">
+        <div className="mb-12 flex flex-col gap-8 text-center md:text-left md:flex-row md:items-center md:justify-between">
+          <div className="max-w-xl">
+            <h2 className="text-3xl font-black text-[#151d0c] md:text-4xl lg:text-5xl leading-tight">🌱 Partnership Models for Landowners</h2>
+            <p className="mt-6 text-lg text-[#4b5f3e] leading-relaxed">
               Ente Bhoomi Agro LLP offers flexible and transparent collaboration models for landowners who wish to make their land productive and profitable.
             </p>
+          </div>
+          <div className="w-full md:w-5/12 lg:w-1/2 flex justify-center md:justify-end">
+            <img
+              src="/aerial-view-vibrant-agricultural-landscape-with-diverse-crops.jpg"
+              alt="Aerial view of vibrant agricultural landscape"
+              className="rounded-2xl shadow-xl object-cover w-full h-[300px] md:h-[400px]"
+            />
           </div>
         </div>
 
         <div className="space-y-4">
           {/* Model 1: Annual Lease */}
-          <div className="group relative flex flex-col md:flex-row items-start md:items-center justify-between rounded-xl border border-[#5bab00]/10 bg-white p-6 md:p-8 shadow-sm transition-all hover:border-[#5bab00]/50 hover:shadow-lg hover:bg-[#fafdf7]">
-            <div className="flex items-start gap-6 md:gap-8 flex-1">
-              <div className="hidden sm:flex size-14 md:size-16 shrink-0 items-center justify-center rounded-xl bg-[#5bab00]/10 text-[#5bab00]">
-                <span className="material-symbols-outlined text-3xl md:text-4xl">calendar_month</span>
-              </div>
-              <div className="space-y-2 max-w-2xl">
-                <div className="flex items-center gap-3">
-                  <div className="flex sm:hidden size-10 shrink-0 items-center justify-center rounded-lg bg-[#5bab00]/10 text-[#5bab00]">
-                    <span className="material-symbols-outlined text-xl">calendar_month</span>
-                  </div>
-                  <h3 className="text-xl md:text-2xl font-bold text-[#151d0c]">Annual Lease or Profit Share Model</h3>
+          <div className="group relative overflow-hidden flex flex-col items-start justify-end rounded-2xl bg-white shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] min-h-[400px]">
+            {/* Background Image */}
+            <div
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+              style={{ backgroundImage: "url('/park.jpg')" }}
+            ></div>
+            {/* Dark Gradient Overlay for Readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#151d0c]/95 via-[#151d0c]/80 to-transparent"></div>
+
+            <div className="relative z-10 p-6 md:p-8 w-full h-full flex flex-col justify-end mt-20">
+              <div className="flex items-center gap-4 mb-5">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#5bab00] text-white shadow-lg shadow-[#5bab00]/30">
+                  <span className="material-symbols-outlined text-2xl">calendar_month</span>
                 </div>
-                <ul className="text-sm md:text-base text-[#4b5f3e] leading-relaxed list-disc list-inside space-y-1">
-                  <li>Annual lease amount (mutually agreed)</li>
-                  <li>Lease paid yearly</li>
-                  <li>All cultivation expenses borne by Ente Bhoomi</li>
-                  <li>Farming supervised by agricultural experts</li>
-                  <li>Landowner chooses higher of: 25% of net profit, OR Fixed annual lease amount</li>
-                </ul>
-                <div className="flex flex-wrap gap-x-6 gap-y-2 pt-2">
-                  <div className="flex items-center gap-1.5 text-sm font-medium text-[#151d0c] bg-[#eef4e6] px-3 py-1 rounded-full">
-                    <span className="material-symbols-outlined text-lg text-[#5bab00]">check_circle</span>
-                    Assured income with option for higher returns
-                  </div>
-                </div>
+                <h3 className="text-2xl md:text-3xl font-black text-white drop-shadow-md leading-tight">Annual Lease or Profit Share Model</h3>
               </div>
-            </div>
-            <div className="mt-6 md:mt-0 w-full md:w-auto shrink-0 md:pl-8">
-              <button
-                onClick={() => {
-                  setFormData(prev => ({ ...prev, model: "Annual Lease" }));
-                  setIsModalOpen(true);
-                }}
-                className="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-[#5bab00]/10 px-6 py-3 text-sm font-bold text-[#5bab00] transition-all hover:bg-[#5bab00] hover:text-white group-hover:scale-105"
-              >
-                Select Model
-                <span className="material-symbols-outlined text-lg">arrow_forward</span>
-              </button>
+
+              <ul className="text-sm md:text-base text-gray-200 leading-relaxed list-none space-y-2 mb-6 max-w-2xl">
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">Annual lease amount (mutually agreed)</span></li>
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">Lease paid yearly</span></li>
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">All cultivation expenses borne by Ente Bhoomi</span></li>
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">Farming supervised by agricultural experts</span></li>
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">Landowner chooses higher of: 25% of net profit, OR Fixed annual lease amount</span></li>
+              </ul>
+
+              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pt-6 border-t border-white/20">
+                <div className="flex items-center gap-2.5 text-sm md:text-base font-bold text-white bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/20 w-fit">
+                  <span className="material-symbols-outlined text-xl text-[#5bab00]">check_circle</span>
+                  Assured income with option for higher returns
+                </div>
+
+                <button
+                  onClick={() => {
+                    if (!isRegistered) {
+                      toast.error('Please login to select a partnership model');
+                      navigate('/login');
+                      return;
+                    }
+                    setFormData(prev => ({ ...prev, model: "Annual Lease" }));
+                    setIsModalOpen(true);
+                  }}
+                  className="w-full lg:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#5bab00] px-8 py-3.5 text-base font-bold text-white shadow-lg shadow-[#5bab00]/40 transition-all hover:bg-[#4a8a00] hover:scale-105"
+                >
+                  Select Model
+                  <span className="material-symbols-outlined text-xl">arrow_forward</span>
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Model 2: Service Management */}
-          <div className="group relative flex flex-col md:flex-row items-start md:items-center justify-between rounded-xl border border-[#5bab00]/10 bg-white p-6 md:p-8 shadow-sm transition-all hover:border-[#5bab00]/50 hover:shadow-lg hover:bg-[#fafdf7]">
-            <div className="flex items-start gap-6 md:gap-8 flex-1">
-              <div className="hidden sm:flex size-14 md:size-16 shrink-0 items-center justify-center rounded-xl bg-[#5bab00]/10 text-[#5bab00]">
-                <span className="material-symbols-outlined text-3xl md:text-4xl">manage_accounts</span>
-              </div>
-              <div className="space-y-2 max-w-2xl">
-                <div className="flex items-center gap-3">
-                  <div className="flex sm:hidden size-10 shrink-0 items-center justify-center rounded-lg bg-[#5bab00]/10 text-[#5bab00]">
-                    <span className="material-symbols-outlined text-xl">manage_accounts</span>
-                  </div>
-                  <h3 className="text-xl md:text-2xl font-bold text-[#151d0c]">Landowner – Service Management Model</h3>
+          <div className="group relative overflow-hidden flex flex-col items-start justify-end rounded-2xl bg-white shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] min-h-[400px]">
+            {/* Background Image */}
+            <div
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+              style={{ backgroundImage: "url('/landscape-sugar-palm-rice-field.jpg')" }}
+            ></div>
+            {/* Dark Gradient Overlay for Readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#151d0c]/95 via-[#151d0c]/80 to-transparent"></div>
+
+            <div className="relative z-10 p-6 md:p-8 w-full h-full flex flex-col justify-end mt-20">
+              <div className="flex items-center gap-4 mb-5">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#5bab00] text-white shadow-lg shadow-[#5bab00]/30">
+                  <span className="material-symbols-outlined text-2xl">handshake</span>
                 </div>
-                <ul className="text-sm md:text-base text-[#4b5f3e] leading-relaxed list-disc list-inside space-y-1">
-                  <li>No lease agreement</li>
-                  <li>All cultivation expenses borne by landowner</li>
-                  <li>Crop planning to marketing managed by Ente Bhoomi</li>
-                  <li>Net profit sharing: 55% to landowner, 45% to Ente Bhoomi</li>
-                </ul>
-                <div className="flex flex-wrap gap-x-6 gap-y-2 pt-2">
-                  <div className="flex items-center gap-1.5 text-sm font-medium text-[#151d0c] bg-[#eef4e6] px-3 py-1 rounded-full">
-                    <span className="material-symbols-outlined text-lg text-[#5bab00]">check_circle</span>
-                    Higher profit share + Professional management
-                  </div>
-                </div>
+                <h3 className="text-2xl md:text-3xl font-black text-white drop-shadow-md leading-tight">Landowner – Service Management Model</h3>
               </div>
-            </div>
-            <div className="mt-6 md:mt-0 w-full md:w-auto shrink-0 md:pl-8">
-              <button
-                onClick={() => {
-                  setFormData(prev => ({ ...prev, model: "Service Management" }));
-                  setIsModalOpen(true);
-                }}
-                className="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-[#5bab00]/10 px-6 py-3 text-sm font-bold text-[#5bab00] transition-all hover:bg-[#5bab00] hover:text-white group-hover:scale-105"
-              >
-                Select Model
-                <span className="material-symbols-outlined text-lg">arrow_forward</span>
-              </button>
+
+              <ul className="text-sm md:text-base text-gray-200 leading-relaxed list-none space-y-2 mb-6 max-w-2xl">
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">No lease agreement</span></li>
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">All cultivation expenses borne by landowner</span></li>
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">Crop planning to marketing managed by Ente Bhoomi</span></li>
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">Net profit sharing: 55% to landowner, 45% to Ente Bhoomi</span></li>
+              </ul>
+
+              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pt-6 border-t border-white/20">
+                <div className="flex items-center gap-2.5 text-sm md:text-base font-bold text-white bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/20 w-fit">
+                  <span className="material-symbols-outlined text-xl text-[#5bab00]">check_circle</span>
+                  Higher profit share + Professional management
+                </div>
+
+                <button
+                  onClick={() => {
+                    if (!isRegistered) {
+                      toast.error('Please login to select a partnership model');
+                      navigate('/login');
+                      return;
+                    }
+                    setFormData(prev => ({ ...prev, model: "Service Management" }));
+                    setIsModalOpen(true);
+                  }}
+                  className="w-full lg:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#5bab00] px-8 py-3.5 text-base font-bold text-white shadow-lg shadow-[#5bab00]/40 transition-all hover:bg-[#4a8a00] hover:scale-105"
+                >
+                  Select Model
+                  <span className="material-symbols-outlined text-xl">arrow_forward</span>
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Model 3: Joint Investment */}
-          <div className="group relative flex flex-col md:flex-row items-start md:items-center justify-between rounded-xl border border-[#5bab00]/10 bg-white p-6 md:p-8 shadow-sm transition-all hover:border-[#5bab00]/50 hover:shadow-lg hover:bg-[#fafdf7]">
-            <div className="flex items-start gap-6 md:gap-8 flex-1">
-              <div className="hidden sm:flex size-14 md:size-16 shrink-0 items-center justify-center rounded-xl bg-[#5bab00]/10 text-[#5bab00]">
-                <span className="material-symbols-outlined text-3xl md:text-4xl">handshake</span>
-              </div>
-              <div className="space-y-2 max-w-2xl">
-                <div className="flex items-center gap-3">
-                  <div className="flex sm:hidden size-10 shrink-0 items-center justify-center rounded-lg bg-[#5bab00]/10 text-[#5bab00]">
-                    <span className="material-symbols-outlined text-xl">handshake</span>
-                  </div>
-                  <h3 className="text-xl md:text-2xl font-bold text-[#151d0c]">Joint Investment Model</h3>
+          <div className="group relative overflow-hidden flex flex-col items-start justify-end rounded-2xl bg-white shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] min-h-[400px]">
+            {/* Background Image */}
+            <div
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+              style={{ backgroundImage: "url('/fields-bali-are-photographed-from-drone.jpg')" }}
+            ></div>
+            {/* Dark Gradient Overlay for Readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#151d0c]/95 via-[#151d0c]/80 to-transparent"></div>
+
+            <div className="relative z-10 p-6 md:p-8 w-full h-full flex flex-col justify-end mt-20">
+              <div className="flex items-center gap-4 mb-5">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#5bab00] text-white shadow-lg shadow-[#5bab00]/30">
+                  <span className="material-symbols-outlined text-2xl">handshake</span>
                 </div>
-                <ul className="text-sm md:text-base text-[#4b5f3e] leading-relaxed list-disc list-inside space-y-1">
-                  <li>Cultivation costs invested by landowner</li>
-                  <li>Farm management and marketing by Ente Bhoomi</li>
-                  <li>After harvest: First: Fixed lease amount paid to landowner</li>
-                  <li>Remaining net profit shared: 35% to landowner, 65% to Ente Bhoomi</li>
-                </ul>
-                <div className="flex flex-wrap gap-x-6 gap-y-2 pt-2">
-                  <div className="flex items-center gap-1.5 text-sm font-medium text-[#151d0c] bg-[#eef4e6] px-3 py-1 rounded-full">
-                    <span className="material-symbols-outlined text-lg text-[#5bab00]">check_circle</span>
-                    Assured base income + Profit sharing
-                  </div>
-                </div>
+                <h3 className="text-2xl md:text-3xl font-black text-white drop-shadow-md leading-tight">Joint Investment Model</h3>
               </div>
-            </div>
-            <div className="mt-6 md:mt-0 w-full md:w-auto shrink-0 md:pl-8">
-              <button
-                onClick={() => {
-                  setFormData(prev => ({ ...prev, model: "Joint Investment" }));
-                  setIsModalOpen(true);
-                }}
-                className="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-[#5bab00]/10 px-6 py-3 text-sm font-bold text-[#5bab00] transition-all hover:bg-[#5bab00] hover:text-white group-hover:scale-105"
-              >
-                Select Model
-                <span className="material-symbols-outlined text-lg">arrow_forward</span>
-              </button>
+
+              <ul className="text-sm md:text-base text-gray-200 leading-relaxed list-none space-y-2 mb-6 max-w-2xl">
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">Cultivation costs invested by landowner</span></li>
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">Farm management and marketing by Ente Bhoomi</span></li>
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">After harvest: First: Fixed lease amount paid to landowner</span></li>
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">Remaining net profit shared: 35% to landowner, 65% to Ente Bhoomi</span></li>
+              </ul>
+
+              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pt-6 border-t border-white/20">
+                <div className="flex items-center gap-2.5 text-sm md:text-base font-bold text-white bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/20 w-fit">
+                  <span className="material-symbols-outlined text-xl text-[#5bab00]">check_circle</span>
+                  Assured base income + Profit sharing
+                </div>
+
+                <button
+                  onClick={() => {
+                    if (!isRegistered) {
+                      toast.error('Please login to select a partnership model');
+                      navigate('/login');
+                      return;
+                    }
+                    setFormData(prev => ({ ...prev, model: "Joint Investment" }));
+                    setIsModalOpen(true);
+                  }}
+                  className="w-full lg:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#5bab00] px-8 py-3.5 text-base font-bold text-white shadow-lg shadow-[#5bab00]/40 transition-all hover:bg-[#4a8a00] hover:scale-105"
+                >
+                  Select Model
+                  <span className="material-symbols-outlined text-xl">arrow_forward</span>
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Model 4: Pure Profit Sharing */}
-          <div className="group relative flex flex-col md:flex-row items-start md:items-center justify-between rounded-xl border border-[#5bab00]/10 bg-white p-6 md:p-8 shadow-sm transition-all hover:border-[#5bab00]/50 hover:shadow-lg hover:bg-[#fafdf7]">
-            <div className="flex items-start gap-6 md:gap-8 flex-1">
-              <div className="hidden sm:flex size-14 md:size-16 shrink-0 items-center justify-center rounded-xl bg-[#5bab00]/10 text-[#5bab00]">
-                <span className="material-symbols-outlined text-3xl md:text-4xl">trending_up</span>
-              </div>
-              <div className="space-y-2 max-w-2xl">
-                <div className="flex items-center gap-3">
-                  <div className="flex sm:hidden size-10 shrink-0 items-center justify-center rounded-lg bg-[#5bab00]/10 text-[#5bab00]">
-                    <span className="material-symbols-outlined text-xl">trending_up</span>
-                  </div>
-                  <h3 className="text-xl md:text-2xl font-bold text-[#151d0c]">Pure Profit Sharing Model (No Lease)</h3>
+          <div className="group relative overflow-hidden flex flex-col items-start justify-end rounded-2xl bg-white shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] min-h-[400px]">
+            {/* Background Image */}
+            <div
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+              style={{ backgroundImage: "url('/view-green-palm-tree-species-with-beautiful-foliage.jpg')" }}
+            ></div>
+            {/* Dark Gradient Overlay for Readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#151d0c]/95 via-[#151d0c]/80 to-transparent"></div>
+
+            <div className="relative z-10 p-6 md:p-8 w-full h-full flex flex-col justify-end mt-20">
+              <div className="flex items-center gap-4 mb-5">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#5bab00] text-white shadow-lg shadow-[#5bab00]/30">
+                  <span className="material-symbols-outlined text-2xl">trending_up</span>
                 </div>
-                <ul className="text-sm md:text-base text-[#4b5f3e] leading-relaxed list-disc list-inside space-y-1">
-                  <li>No fixed lease payment</li>
-                  <li>All cultivation and marketing expenses by landowner</li>
-                  <li>Complete execution by Ente Bhoomi</li>
-                  <li>Net profit sharing: 65% to landowner, 35% to Ente Bhoomi</li>
-                </ul>
-                <div className="flex flex-wrap gap-x-6 gap-y-2 pt-2">
-                  <div className="flex items-center gap-1.5 text-sm font-medium text-[#151d0c] bg-[#eef4e6] px-3 py-1 rounded-full">
-                    <span className="material-symbols-outlined text-lg text-[#5bab00]">check_circle</span>
-                    Maximum profit share for landowner
-                  </div>
-                </div>
+                <h3 className="text-2xl md:text-3xl font-black text-white drop-shadow-md leading-tight">Pure Profit Sharing Model (No Lease)</h3>
               </div>
-            </div>
-            <div className="mt-6 md:mt-0 w-full md:w-auto shrink-0 md:pl-8">
-              <button
-                onClick={() => {
-                  setFormData(prev => ({ ...prev, model: "Pure Profit Sharing" }));
-                  setIsModalOpen(true);
-                }}
-                className="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-[#5bab00]/10 px-6 py-3 text-sm font-bold text-[#5bab00] transition-all hover:bg-[#5bab00] hover:text-white group-hover:scale-105"
-              >
-                Select Model
-                <span className="material-symbols-outlined text-lg">arrow_forward</span>
-              </button>
+
+              <ul className="text-sm md:text-base text-gray-200 leading-relaxed list-none space-y-2 mb-6 max-w-2xl">
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">No fixed lease payment</span></li>
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">All cultivation and marketing expenses by landowner</span></li>
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">Complete execution by Ente Bhoomi</span></li>
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">Net profit sharing: 65% to landowner, 35% to Ente Bhoomi</span></li>
+              </ul>
+
+              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pt-6 border-t border-white/20">
+                <div className="flex items-center gap-2.5 text-sm md:text-base font-bold text-white bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/20 w-fit">
+                  <span className="material-symbols-outlined text-xl text-[#5bab00]">check_circle</span>
+                  Maximum profit share for landowner
+                </div>
+
+                <button
+                  onClick={() => {
+                    if (!isRegistered) {
+                      toast.error('Please login to select a partnership model');
+                      navigate('/login');
+                      return;
+                    }
+                    setFormData(prev => ({ ...prev, model: "Pure Profit Sharing" }));
+                    setIsModalOpen(true);
+                  }}
+                  className="w-full lg:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#5bab00] px-8 py-3.5 text-base font-bold text-white shadow-lg shadow-[#5bab00]/40 transition-all hover:bg-[#4a8a00] hover:scale-105"
+                >
+                  Select Model
+                  <span className="material-symbols-outlined text-xl">arrow_forward</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
