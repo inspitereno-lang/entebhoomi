@@ -5,11 +5,11 @@ import { Input } from '../components/ui/input';
 
 export default function ContactPage() {
     return (
-        <div className="min-h-screen bg-[#FAFAFA] pt-10 pb-20">
+        <div className="min-h-screen bg-[#FAFAFA] pb-20">
             {/* Header */}
             <div
-                className="relative py-24 px-4 text-center bg-cover bg-center"
-                style={{ backgroundImage: "url('/rice-paddies.jpg')" }}
+                className="relative flex items-center justify-center py-24 px-4 h-[40vh] min-h-[400px] text-center bg-cover bg-center bg-no-repeat"
+                style={{ backgroundImage: "url('/panoramic-shot-agrucultural-field-with-rays-sun-shining-through-clouds.jpg')" }}
             >
                 <div className="absolute inset-0 bg-black/50"></div>
                 <div className="relative z-10">
