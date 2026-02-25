@@ -2,7 +2,7 @@
     "rewrites": [
         {
             "source": "/api/(.*)",
-            "destination": "https://entebhoomiapi.onrender.com/api/$1"
+            "destination": "https://entebhoomiapi.onrender.com/$1"
         },
         {
             "source": "/(.*)",
