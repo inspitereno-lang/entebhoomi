@@ -144,72 +144,46 @@ export default function HomePage() {
       <section className="relative overflow-hidden w-full px-4 pt-6 lg:px-10">
         <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl shadow-lg relative min-h-[500px] h-[500px] bg-gray-100 group">
 
-          {/* Slider Container */}
-          <div
-            className="flex h-full w-full transition-transform duration-700 ease-in-out"
-            style={{
-              transform: `translateX(-${currentSlide * 100}%)`,
-              width: `${Math.max(banners.length * 100, 100)}%`
-            }}
-          >
-            {banners.length > 0 ? (
-              banners.map((banner, index) => (
-                <div
-                  key={banner._id || index}
-                  className="relative h-full w-full flex-shrink-0 bg-cover bg-center flex items-center"
-                  style={{
-                    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), url('${normalizeImageUrl(banner.image)}')`,
-                    width: `${100 / Math.max(banners.length, 1)}%`
-                  }}
-                >
-                  <div className="relative z-10 flex flex-col gap-6 p-8 md:p-16 max-w-3xl">
-                    {/* Use banner details if available from API, else default */}
-                    <h1 className="text-4xl font-black leading-tight text-white md:text-6xl tracking-tight drop-shadow-lg">
-                      {banner.title || (
-                        <>Pure, Fresh, from <span className="text-[#dceacd]">Ente Bhoomi</span></>
-                      )}
-                    </h1>
-                    <p className="text-lg font-medium text-white/90 md:text-xl max-w-xl drop-shadow-md">
-                      {banner.description || "Connecting you with nature's finest agricultural products directly from the heart of Kerala's soil."}
-                    </p>
-                    <div className="flex flex-wrap gap-4 pt-4">
-                      {banner.link ? (
-                        <button
-                          onClick={() => {
-                            if (banner.link.startsWith('http')) {
-                              window.open(banner.link, '_blank');
-                            } else {
-                              navigate(banner.link);
-                            }
-                          }}
-                          className="inline-flex h-12 items-center justify-center rounded-lg bg-[#5bab00] px-8 text-base font-bold text-white shadow-md transition-transform hover:scale-105 hover:bg-[#4a8a00]"
-                        >
-                          Shop Now
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => navigate('/products')}
-                          className="inline-flex h-12 items-center justify-center rounded-lg bg-[#5bab00] px-8 text-base font-bold text-white shadow-md transition-transform hover:scale-105 hover:bg-[#4a8a00]"
-                        >
-                          Shop Now
-                        </button>
-                      )}
-                    </div>
+          {/* Banner Slides */}
+          {banners.length > 0 ? (
+            banners.map((banner, index) => (
+              <div
+                key={banner._id || index}
+                className={`absolute inset-0 bg-cover bg-center flex items-center transition-opacity duration-700 ease-in-out ${currentSlide === index ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                  }`}
+                style={{
+                  backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), url('${normalizeImageUrl(banner.image)}')`
+                }}
+              >
+                <div className="relative z-10 flex flex-col gap-6 p-8 md:p-16 max-w-3xl">
+                  <h1 className="text-4xl font-black leading-tight text-white md:text-6xl tracking-tight drop-shadow-lg">
+                    {banner.title || (
+                      <>Pure, Fresh, from <span className="text-[#dceacd]">Ente Bhoomi</span></>
+                    )}
+                  </h1>
+                  <p className="text-lg font-medium text-white/90 md:text-xl max-w-xl drop-shadow-md">
+                    {banner.description || "Connecting you with nature's finest agricultural products directly from the heart of Kerala's soil."}
+                  </p>
+                  <div className="flex flex-wrap gap-4 pt-4">
+                    <button
+                      onClick={() => banner.link ? (banner.link.startsWith('http') ? window.open(banner.link, '_blank') : navigate(banner.link)) : navigate('/products')}
+                      className="inline-flex h-12 items-center justify-center rounded-lg bg-[#5bab00] px-8 text-base font-bold text-white shadow-md transition-transform hover:scale-105 hover:bg-[#4a8a00]"
+                    >
+                      Shop Now
+                    </button>
                   </div>
                 </div>
-              ))
-            ) : (
-              /* Fallback/Skeleton if no banners */
-              <div className="flex h-full w-full items-center justify-center bg-gray-200 animate-pulse">
-                <div className="w-16 h-16 border-4 border-[#5bab00] border-t-transparent rounded-full animate-spin"></div>
               </div>
-            )}
-          </div>
+            ))
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gray-200 animate-pulse">
+              <div className="w-16 h-16 border-4 border-[#5bab00] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          )}
 
           {/* Controls - Only show if more than 1 banner */}
           {banners.length > 1 && (
             <>
-              {/* Left/Right Arrows */}
               <button
                 onClick={(e) => { e.stopPropagation(); prevSlide(); }}
                 className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/20 hover:bg-white border text-white hover:text-[#5bab00] border-white/40 flex items-center justify-center backdrop-blur-sm opacity-0 transform -translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0"
@@ -223,7 +197,6 @@ export default function HomePage() {
                 <ChevronRight className="w-6 h-6 mr-[-2px]" />
               </button>
 
-              {/* Dots */}
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
                 {banners.map((_, index) => (
                   <button
