@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: import.meta.env.PROD ? 'https://api.thakkalies.laavas.com' : import.meta.env.VITE_API_BASE_URL,
+    baseURL: import.meta.env.PROD ? 'https://entebhoomiapi.onrender.com' : import.meta.env.VITE_API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
