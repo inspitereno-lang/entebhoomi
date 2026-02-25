@@ -95,7 +95,7 @@ export default function LandownerSection() {
             {/* Background Image */}
             <div
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-              style={{ backgroundImage: "url('/park.jpg')" }}
+              style={{ backgroundImage: "url('/Gemini_Generated_Image_t0dzv8t0dzv8t0dz.png')" }}
             ></div>
             {/* Dark Gradient Overlay for Readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#151d0c]/95 via-[#151d0c]/80 to-transparent"></div>
