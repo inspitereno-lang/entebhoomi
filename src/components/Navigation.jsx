@@ -272,12 +272,6 @@ export default function Navigation() {
                   <DropdownMenuItem onClick={() => navigate('/addresses')}>
                     Saved Addresses
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/rewards')}>
-                    Rewards
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/refer-earn')}>
-                    Refer & Earn
-                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
                       logout();

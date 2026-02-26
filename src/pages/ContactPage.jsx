@@ -1,9 +1,12 @@
 import React from 'react';
-import { Mail, Phone, MapPin, Clock } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, ArrowLeft } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import { useNavigate } from 'react-router-dom';
 
 export default function ContactPage() {
+    const navigate = useNavigate();
+
     return (
         <div className="min-h-screen bg-[#FAFAFA] pb-20">
             {/* Header */}
@@ -12,6 +15,15 @@ export default function ContactPage() {
                 style={{ backgroundImage: "url('/panoramic-shot-agrucultural-field-with-rays-sun-shining-through-clouds.jpg')" }}
             >
                 <div className="absolute inset-0 bg-black/50"></div>
+
+                {/* Back Button */}
+                <button
+                    onClick={() => navigate(-1)}
+                    className="absolute top-6 left-6 md:top-8 md:left-10 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-all hover:bg-white/40 hover:scale-105"
+                    aria-label="Go back"
+                >
+                    <ArrowLeft className="h-5 w-5" />
+                </button>
                 <div className="relative z-10">
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 drop-shadow-lg">Contact Us</h1>
                     <p className="text-lg md:text-xl text-white/95 max-w-2xl mx-auto drop-shadow-md font-medium">

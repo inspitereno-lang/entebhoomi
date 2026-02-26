@@ -53,18 +53,6 @@ export default function ProfilePage() {
       description: 'View your order history',
     },
     {
-      icon: Gift,
-      label: 'Rewards',
-      onClick: () => navigate('/rewards'),
-      description: 'Check your reward points',
-    },
-    {
-      icon: Users,
-      label: 'Refer & Earn',
-      onClick: () => navigate('/refer-earn'),
-      description: 'Invite friends and earn rewards',
-    },
-    {
       icon: Heart,
       label: 'Wishlist',
       onClick: () => navigate('/wishlist'),

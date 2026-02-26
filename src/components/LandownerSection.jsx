@@ -323,11 +323,17 @@ export default function LandownerSection() {
                       <input
                         name="phone"
                         value={formData.phone}
-                        onChange={handleInputChange}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '');
+                          if (val.length <= 10) {
+                            handleInputChange({ target: { name: 'phone', value: val } });
+                          }
+                        }}
                         required
                         className="w-full rounded-lg border border-gray-300 bg-[#fafcf8] px-4 py-2.5 text-[#151d0c] focus:border-[#5bab00] focus:ring-1 focus:ring-[#5bab00]"
-                        placeholder="+91 00000 00000"
+                        placeholder="Enter 10 digit number"
                         type="tel"
+                        maxLength="10"
                       />
                     </div>
                     <div>
@@ -346,25 +352,13 @@ export default function LandownerSection() {
                   <div className="space-y-6">
                     <div>
                       <label className="mb-1 block text-sm font-semibold text-[#151d0c]">Interested Model *</label>
-                      <div className="relative">
-                        <select
-                          name="model"
-                          value={formData.model}
-                          onChange={handleInputChange}
-                          required
-                          className="w-full appearance-none rounded-lg border border-gray-300 bg-[#fafcf8] px-4 py-2.5 text-[#151d0c] focus:border-[#5bab00] focus:ring-1 focus:ring-[#5bab00]"
-                        >
-                          <option value="" disabled>Select an option...</option>
-                          <option value="Annual Lease">Annual Lease</option>
-                          <option value="Service Management">Service Management</option>
-                          <option value="Joint Investment">Joint Investment</option>
-                          <option value="Pure Profit Sharing">Pure Profit Sharing</option>
-                          <option value="Not Sure">I'm not sure yet</option>
-                        </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                          <span className="material-symbols-outlined">expand_more</span>
-                        </div>
-                      </div>
+                      <input
+                        name="model"
+                        value={formData.model}
+                        readOnly
+                        className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-[#151d0c] cursor-not-allowed"
+                        type="text"
+                      />
                     </div>
                     <div className="flex gap-4">
                       <div className="w-2/3">
