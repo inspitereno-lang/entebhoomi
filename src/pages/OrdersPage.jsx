@@ -1,5 +1,5 @@
 import { normalizeImageUrl } from '../utils/utils.js';
-import { Package, ChevronRight, RotateCcw } from 'lucide-react';
+import { Package, ChevronRight, RotateCcw, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext.jsx';
 import { Button } from '../components/ui/button.jsx';
@@ -44,7 +44,14 @@ export default function OrdersPage() {
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
       <div className="bg-white border-b border-[#E5E5E5]">
-        <div className="section-container py-6">
+        <div className="section-container py-6 flex items-center gap-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f1f7e8] text-[#5bab00] hover:bg-[#E2F0D9] transition-colors"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
           <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">Order History</h1>
         </div>
       </div>
