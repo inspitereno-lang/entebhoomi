@@ -223,13 +223,13 @@ export function StoreProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (isLoggedIn && !isGuest) {
       fetchWishlist();
       fetchCart();
       fetchUserDetails();
       fetchOrders();
     }
-  }, [isLoggedIn, fetchWishlist, fetchCart, fetchUserDetails, fetchOrders]);
+  }, [isLoggedIn, isGuest, fetchWishlist, fetchCart, fetchUserDetails, fetchOrders]);
 
   const requestOTP = useCallback(async (phone) => {
     try {

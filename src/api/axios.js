@@ -15,4 +15,27 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            // Remove bad token
+            localStorage.removeItem('token');
+            localStorage.removeItem('tokenType');
+
+            // Avoid infinite reload loop
+            const reloadCount = sessionStorage.getItem('authReloadCount') || 0;
+            if (reloadCount < 2) {
+                sessionStorage.setItem('authReloadCount', Number(reloadCount) + 1);
+                if (window.location.pathname !== '/login') {
+                    window.location.reload();
+                }
+            } else {
+                console.error("Authentication failed: Reached max reload attempts for 401.");
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default api;

@@ -75,7 +75,7 @@ export default function LandownerSection() {
   };
 
   return (
-    <section className="bg-gradient-to-b from-[#f2f7ed] to-white px-4 py-20 lg:px-10">
+    <section id="landowners" className="bg-gradient-to-b from-[#f2f7ed] to-white px-4 py-20 lg:px-10">
       <div className="mx-auto max-w-7xl">
         <div className="mb-12 flex flex-col gap-8 text-center md:text-left md:flex-row md:items-center md:justify-between">
           <div className="max-w-xl">
@@ -83,6 +83,14 @@ export default function LandownerSection() {
             <p className="mt-6 text-lg text-[#4b5f3e] leading-relaxed">
               Ente Bhoomi Agro LLP offers flexible and transparent collaboration models for landowners who wish to make their land productive and profitable.
             </p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <Link
+                to="/contact"
+                className="inline-flex items-center justify-center rounded-xl bg-[#5bab00] px-10 py-3.5 text-base font-bold text-white shadow-lg shadow-[#5bab00]/30 transition-all hover:bg-[#4a8a00] hover:scale-105"
+              >
+                Enquire Now
+              </Link>
+            </div>
           </div>
           <div className="w-full md:w-5/12 lg:w-1/2 flex justify-center md:justify-end">
             <img
