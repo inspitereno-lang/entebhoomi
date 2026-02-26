@@ -11,6 +11,7 @@ export default function AddAddressPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const editAddress = location.state?.editAddress;
+  const returnTo = location.state?.returnTo || '/addresses';
   const { addAddress, updateAddress } = useStore();
   const [addressType, setAddressType] = useState(editAddress?.type || 'home');
   const [name, setName] = useState(editAddress?.name || '');
@@ -71,7 +72,7 @@ export default function AddAddressPage() {
 
       if (success) {
         toast.success(editAddress ? 'Address updated successfully!' : 'Address saved successfully!');
-        navigate('/addresses');
+        navigate(returnTo, { state: { from: location.state?.from } });
       }
     } catch (error) {
       toast.error('Failed to save address');
@@ -85,7 +86,7 @@ export default function AddAddressPage() {
       <div className="bg-white border-b border-[#E5E5E5]">
         <div className="section-container py-4">
           <button
-            onClick={() => navigate('/addresses')}
+            onClick={() => navigate(returnTo, { state: { from: location.state?.from } })}
             className="flex items-center gap-2 text-[#666666] hover:text-[#5bab00] transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -246,7 +247,7 @@ export default function AddAddressPage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/addresses')}
+                onClick={() => navigate(returnTo, { state: { from: location.state?.from } })}
                 className="flex-1 py-4 h-14"
               >
                 Cancel

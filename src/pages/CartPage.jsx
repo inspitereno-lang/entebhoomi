@@ -48,7 +48,7 @@ export default function CartPage() {
     }
     if (!defaultAddress) {
       toast.error('Please add a delivery address');
-      navigate('/add-address');
+      navigate('/add-address', { state: { returnTo: '/cart' } });
       return;
     }
 
@@ -153,7 +153,7 @@ export default function CartPage() {
                 </div>
               ) : (
                 <button
-                  onClick={() => navigate('/add-address')}
+                  onClick={() => navigate('/add-address', { state: { returnTo: '/cart' } })}
                   className="w-full p-4 border-2 border-dashed border-[#E5E5E5] rounded-xl text-[#666666] hover:border-[#5bab00] hover:text-[#5bab00] transition-colors flex items-center justify-center gap-2"
                 >
                   <Plus className="w-5 h-5" />

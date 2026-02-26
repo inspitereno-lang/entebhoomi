@@ -36,7 +36,7 @@ export default function AddressesPage() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">Saved Addresses</h1>
           <Button
-            onClick={() => navigate('/add-address')}
+            onClick={() => navigate('/add-address', { state: { returnTo: '/addresses', from: location.state?.from } })}
             className="btn-primary flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
@@ -52,7 +52,7 @@ export default function AddressesPage() {
             <h3 className="text-lg font-medium text-[#1A1A1A] mb-2">No saved addresses</h3>
             <p className="text-[#666666] mb-6">Add your first address to get started</p>
             <Button
-              onClick={() => navigate('/add-address')}
+              onClick={() => navigate('/add-address', { state: { returnTo: '/addresses', from: location.state?.from } })}
               className="btn-primary"
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -120,7 +120,7 @@ export default function AddressesPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => navigate('/add-address', { state: { editAddress: address } })}
+                      onClick={() => navigate('/add-address', { state: { editAddress: address, returnTo: '/addresses', from: location.state?.from } })}
                       className="flex-1 border-[#5bab00] text-[#5bab00] hover:bg-[#f1f7e8]"
                     >
                       Edit
