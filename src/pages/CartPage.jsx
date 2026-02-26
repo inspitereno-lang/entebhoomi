@@ -8,12 +8,16 @@ import {
   Trash2,
   Truck,
   Tag,
-  ChevronRight
+  ChevronRight,
+  Package,
+  AlertTriangle
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext.jsx';
 import { Button } from '../components/ui/button.jsx';
 import { toast } from '../components/ui/sonner';
 import { normalizeImageUrl } from '../utils/utils.js';
+
+const BULK_THRESHOLD = 20;
 
 export default function CartPage() {
   const navigate = useNavigate();
@@ -32,6 +36,10 @@ export default function CartPage() {
     addresses.find((a) => a.isDefault)?.id || addresses[0]?.id
   );
   const [paymentMethod, setPaymentMethod] = useState('online');
+
+  // Detect if any cart item has quantity >= BULK_THRESHOLD
+  const isBulkOrder = cart.some(item => item.quantity >= BULK_THRESHOLD);
+  const bulkItems = cart.filter(item => item.quantity >= BULK_THRESHOLD);
 
   // Mock data as requested: Fees and taxes are not coming from backend yet
   const deliveryFee = 0;
@@ -61,11 +69,15 @@ export default function CartPage() {
         deliveryFee,
         taxes,
         total,
-        paymentMethod: 'Online Payment',
+        paymentMethod: isBulkOrder ? 'Purchase Order' : 'Online Payment',
         deliveryAddress: defaultAddress,
       });
-      // Success toast handled in StoreContext
-      navigate('/payment-success', { state: { orderId: order.id } });
+      // Check if it was a bulk order
+      if (order.isBulk) {
+        navigate('/bulk-order-success', { state: { orderId: order.id } });
+      } else {
+        navigate('/payment-success', { state: { orderId: order.id } });
+      }
     } catch (error) {
       console.error('Order placement error:', error);
       // Error toasts handled in StoreContext
@@ -274,26 +286,54 @@ export default function CartPage() {
                 </div>
               </div>
 
+              {/* Bulk Order Banner */}
+              {isBulkOrder && (
+                <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-amber-800 mb-1">Bulk Order Detected</p>
+                    <p className="text-xs text-amber-700">
+                      Your cart has {bulkItems.length} item{bulkItems.length > 1 ? 's' : ''} with 20+ quantity.
+                      This will be processed as a Purchase Order — our team will contact you to confirm pricing & delivery.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <div className="mb-6">
                 <h4 className="text-sm font-medium text-[#666666] mb-3">
                   Payment Method
                 </h4>
-                <button
-                  onClick={() => setPaymentMethod('online')}
-                  className={`w-full p-4 rounded-xl border-2 text-left transition-colors flex items-center gap-3 border-[#5bab00] bg-[#f1f7e8]`}
-                >
-                  <div
-                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center border-[#5bab00]`}
+                {isBulkOrder ? (
+                  <div className="w-full p-4 rounded-xl border-2 text-left transition-colors flex items-center gap-3 border-[#5bab00] bg-[#f1f7e8]">
+                    <div className="w-10 h-10 bg-[#5bab00]/10 rounded-lg flex items-center justify-center">
+                      <Package className="w-5 h-5 text-[#5bab00]" />
+                    </div>
+                    <div>
+                      <span className="font-medium block text-[#1A1A1A]">Purchase Order (Bulk)</span>
+                      <span className="text-xs text-[#666666]">
+                        Our team will contact you for pricing & delivery
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setPaymentMethod('online')}
+                    className={`w-full p-4 rounded-xl border-2 text-left transition-colors flex items-center gap-3 border-[#5bab00] bg-[#f1f7e8]`}
                   >
-                    <div className="w-2.5 h-2.5 bg-[#5bab00] rounded-full" />
-                  </div>
-                  <div>
-                    <span className="font-medium block">Online Payment</span>
-                    <span className="text-xs text-[#666666]">
-                      UPI, Cards, Net Banking (Razorpay)
-                    </span>
-                  </div>
-                </button>
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center border-[#5bab00]`}
+                    >
+                      <div className="w-2.5 h-2.5 bg-[#5bab00] rounded-full" />
+                    </div>
+                    <div>
+                      <span className="font-medium block">Online Payment</span>
+                      <span className="text-xs text-[#666666]">
+                        UPI, Cards, Net Banking (Razorpay)
+                      </span>
+                    </div>
+                  </button>
+                )}
               </div>
 
               <Button
@@ -304,11 +344,11 @@ export default function CartPage() {
                 {isPlacingOrder ? (
                   <span className="flex items-center gap-2">
                     <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Placing Order...
+                    {isBulkOrder ? 'Submitting Enquiry...' : 'Placing Order...'}
                   </span>
                 ) : (
                   <span className="flex items-center justify-between w-full">
-                    <span>Place Order</span>
+                    <span>{isBulkOrder ? 'Submit Bulk Enquiry' : 'Place Order'}</span>
                     <span className="flex items-center gap-2">
                       ₹{total}
                       <ChevronRight className="w-5 h-5" />

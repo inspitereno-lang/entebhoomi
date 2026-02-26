@@ -11,7 +11,8 @@ import {
   Store,
   Check,
   Truck,
-  Shield
+  Shield,
+  Package
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext.jsx';
 import { products } from '../data/mockData.js';
@@ -251,6 +252,19 @@ export default function ProductDetailPage() {
                   </span>
                 </span>
               </div>
+
+              {/* Bulk Order Badge */}
+              {quantity >= 20 && (
+                <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5">
+                  <Package className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-amber-800">Bulk Order</p>
+                    <p className="text-xs text-amber-700 mt-0.5">
+                      20+ items will be processed as a Purchase Order. Our team will contact you for best pricing & delivery.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <Button

@@ -7,8 +7,10 @@ import { submitLandownerEnquiryApi } from '../services/landownerService.js';
 export default function LandownerSection() {
   const [formData, setFormData] = useState({
     model: '',
-    location: '',
-    area: '',
+    streetOrLocality: '',
+    city: '',
+    district: '',
+    areaSize: '',
     name: '',
     phone: '',
     email: '',
@@ -33,7 +35,7 @@ export default function LandownerSection() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.phone || !formData.location || !formData.area || !formData.model) {
+    if (!formData.name || !formData.phone || !formData.streetOrLocality || !formData.city || !formData.district || !formData.areaSize || !formData.model) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -45,8 +47,10 @@ export default function LandownerSection() {
       submitData.append('partnershipOption', formData.model);
       submitData.append('name', formData.name);
       submitData.append('phoneNumber', formData.phone);
-      submitData.append('location', formData.location);
-      submitData.append('areaSize', formData.area);
+      submitData.append('streetOrLocality', formData.streetOrLocality);
+      submitData.append('city', formData.city);
+      submitData.append('district', formData.district);
+      submitData.append('areaSize', formData.areaSize);
 
       if (formData.email) {
         submitData.append('email', formData.email);
@@ -59,7 +63,7 @@ export default function LandownerSection() {
       await submitLandownerEnquiryApi(submitData);
 
       toast.success('Your application has been submitted successfully.');
-      setFormData({ model: '', location: '', area: '', name: '', phone: '', email: '', image: null });
+      setFormData({ model: '', streetOrLocality: '', city: '', district: '', areaSize: '', name: '', phone: '', email: '', image: null });
       if (fileInputRef.current) fileInputRef.current.value = "";
       setIsModalOpen(false);
     } catch (error) {
@@ -95,7 +99,7 @@ export default function LandownerSection() {
             {/* Background Image */}
             <div
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-              style={{ backgroundImage: "url('/Gemini_Generated_Image_t0dzv8t0dzv8t0dz.webp')" }}
+              style={{ backgroundImage: "url('/aerial-shot-long-road-surrounded-by-trees-fields.jpg')" }}
             ></div>
             {/* Dark Gradient Overlay for Readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#151d0c]/95 via-[#151d0c]/80 to-transparent"></div>
@@ -103,7 +107,7 @@ export default function LandownerSection() {
             <div className="relative z-10 p-6 md:p-8 w-full h-full flex flex-col justify-end mt-20">
               <div className="flex items-center gap-4 mb-5">
                 <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#5bab00] text-white shadow-lg shadow-[#5bab00]/30">
-                  <span className="material-symbols-outlined text-2xl">calendar_month</span>
+                  <span className="material-symbols-outlined text-2xl">handshake</span>
                 </div>
                 <h3 className="text-2xl md:text-3xl font-black text-white drop-shadow-md leading-tight">Annual Lease or Profit Share Model</h3>
               </div>
@@ -360,31 +364,55 @@ export default function LandownerSection() {
                         type="text"
                       />
                     </div>
+                    <div>
+                      <label className="mb-1 block text-sm font-semibold text-[#151d0c]">Street / Locality *</label>
+                      <input
+                        name="streetOrLocality"
+                        value={formData.streetOrLocality}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full rounded-lg border border-gray-300 bg-[#fafcf8] px-4 py-2.5 text-[#151d0c] focus:border-[#5bab00] focus:ring-1 focus:ring-[#5bab00]"
+                        placeholder="Street or Locality"
+                        type="text"
+                      />
+                    </div>
                     <div className="flex gap-4">
-                      <div className="w-2/3">
-                        <label className="mb-1 block text-sm font-semibold text-[#151d0c]">Land Location *</label>
+                      <div className="w-1/2">
+                        <label className="mb-1 block text-sm font-semibold text-[#151d0c]">City *</label>
                         <input
-                          name="location"
-                          value={formData.location}
+                          name="city"
+                          value={formData.city}
                           onChange={handleInputChange}
                           required
                           className="w-full rounded-lg border border-gray-300 bg-[#fafcf8] px-4 py-2.5 text-[#151d0c] focus:border-[#5bab00] focus:ring-1 focus:ring-[#5bab00]"
-                          placeholder="City/District"
+                          placeholder="City name"
                           type="text"
                         />
                       </div>
-                      <div className="w-1/3">
-                        <label className="mb-1 block text-sm font-semibold text-[#151d0c]">Area (Acres) *</label>
+                      <div className="w-1/2">
+                        <label className="mb-1 block text-sm font-semibold text-[#151d0c]">District *</label>
                         <input
-                          name="area"
-                          value={formData.area}
+                          name="district"
+                          value={formData.district}
                           onChange={handleInputChange}
                           required
                           className="w-full rounded-lg border border-gray-300 bg-[#fafcf8] px-4 py-2.5 text-[#151d0c] focus:border-[#5bab00] focus:ring-1 focus:ring-[#5bab00]"
-                          placeholder="0.0"
-                          type="number"
+                          placeholder="District name"
+                          type="text"
                         />
                       </div>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-sm font-semibold text-[#151d0c]">Area (Acres) *</label>
+                      <input
+                        name="areaSize"
+                        value={formData.areaSize}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full rounded-lg border border-gray-300 bg-[#fafcf8] px-4 py-2.5 text-[#151d0c] focus:border-[#5bab00] focus:ring-1 focus:ring-[#5bab00]"
+                        placeholder="0.0"
+                        type="number"
+                      />
                     </div>
                     <div>
                       <label className="mb-1 block text-sm font-semibold text-[#151d0c]">Land Image (Optional)</label>

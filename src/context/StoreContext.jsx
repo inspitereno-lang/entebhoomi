@@ -556,6 +556,20 @@ export function StoreProvider({ children }) {
 
       const { razorpay, order } = orderResult;
 
+      // ═══════════════════════════════════════════════════════════════
+      // BULK ORDER PATH — skip Razorpay entirely
+      // ═══════════════════════════════════════════════════════════════
+      if (orderResult.isBulk) {
+        console.log('📦 Bulk order detected — skipping Razorpay');
+        toast.success('Bulk order submitted! Our team will contact you.');
+        await fetchCart();
+        await fetchOrders();
+        return {
+          id: order._id || order.orderId,
+          isBulk: true
+        };
+      }
+
       if (!razorpay || !razorpay.orderId) {
         throw new Error('Invalid order response from server');
       }
