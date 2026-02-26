@@ -20,6 +20,8 @@ import {
   normalizeWishlistItems
 } from '../services/wishlistService';
 
+import { loadRazorpay } from '../utils/razorpay';
+
 import {
   requestOtpApi,
   verifyOtpApi,
@@ -600,7 +602,7 @@ export function StoreProvider({ children }) {
       console.log('💳 STEP 2: Opening Razorpay checkout...');
       console.log('🔑 Razorpay Key:', razorpay.key); // Debug log
 
-      return new Promise((resolve, reject) => {
+      return new Promise(async (resolve, reject) => {
         let hasSucceeded = false;
         let hasFailed = false;
         let lastError = null;
@@ -734,6 +736,13 @@ export function StoreProvider({ children }) {
         });
 
         console.log('📝 FULL Razorpay Options:', options); // Debug full payload
+
+        const isLoaded = await loadRazorpay();
+        if (!isLoaded) {
+          toast.error('Razorpay SDK failed to load. Are you offline?');
+          reject(new Error('Razorpay SDK failed to load'));
+          return;
+        }
 
         const rzp = new window.Razorpay(options);
 
