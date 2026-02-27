@@ -37,7 +37,6 @@ export default function CartPage() {
     addresses.find((a) => a.isDefault)?.id || addresses[0]?.id
   );
   const [transportMode, setTransportMode] = useState('Delivery Team');
-  const [paymentChoiceByHand, setPaymentChoiceByHand] = useState('RAZORPAY'); // 'RAZORPAY' or 'PURCHASE_ORDER'
 
   // Categorize items into regular and bulk using per-product threshold
   const regularItems = cart.filter(item => {
@@ -88,7 +87,7 @@ export default function CartPage() {
         deliveryFee,
         taxes,
         total,
-        paymentMethod: transportMode === 'By Hand' ? paymentChoiceByHand : (hasBulkItems ? 'Purchase Order' : 'Online Payment'),
+        paymentMethod: hasBulkItems ? 'Purchase Order' : 'Online Payment',
         transportMode,
         deliveryAddress: defaultAddress,
       });
@@ -433,67 +432,44 @@ export default function CartPage() {
                   How you'll pay
                 </h4>
 
-                {/* Razorpay Section - show if not By Hand OR if By Hand and selected */}
-                {(transportMode !== 'By Hand' && hasRegularItems) || (transportMode === 'By Hand' && hasRegularItems) ? (
-                  <button
-                    onClick={() => transportMode === 'By Hand' && setPaymentChoiceByHand('RAZORPAY')}
-                    className={`w-full p-4 rounded-xl border-2 text-left transition-all flex items-center gap-3 ${(transportMode !== 'By Hand' || paymentChoiceByHand === 'RAZORPAY')
-                        ? 'border-[#5bab00] bg-[#f1f7e8]'
-                        : 'border-[#E5E5E5] bg-white'
-                      }`}
-                  >
-                    <div className="w-10 h-10 bg-[#5bab00]/10 rounded-lg flex items-center justify-center">
-                      <CreditCard className="w-5 h-5 text-[#5bab00]" />
-                    </div>
-                    <div className="flex-1">
-                      <span className="font-medium block text-[#1A1A1A]">Online Payment (Razorpay)</span>
-                      <span className="text-xs text-[#666666]">
-                        {transportMode === 'By Hand'
-                          ? `Pay ₹${total} online now`
-                          : `Pay for regular items now — ₹${regularSubtotal}`}
-                      </span>
-                    </div>
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${(transportMode !== 'By Hand' || paymentChoiceByHand === 'RAZORPAY') ? 'border-[#5bab00]' : 'border-[#CCCCCC]'
-                      }`}>
-                      {(transportMode !== 'By Hand' || paymentChoiceByHand === 'RAZORPAY') && (
+                {/* Razorpay Section - show if has regular items */}
+                {hasRegularItems && (
+                  <div className="p-4 rounded-xl border-2 border-[#5bab00] bg-[#f1f7e8]">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-[#5bab00]/10 rounded-lg flex items-center justify-center">
+                        <CreditCard className="w-5 h-5 text-[#5bab00]" />
+                      </div>
+                      <div className="flex-1">
+                        <span className="font-medium block text-[#1A1A1A]">Online Payment (Razorpay)</span>
+                        <span className="text-xs text-[#666666]">
+                          Pay for regular items now — ₹{regularSubtotal}
+                        </span>
+                      </div>
+                      <div className="w-5 h-5 rounded-full border-2 border-[#5bab00] flex items-center justify-center">
                         <div className="w-2.5 h-2.5 bg-[#5bab00] rounded-full" />
-                      )}
+                      </div>
                     </div>
-                  </button>
-                ) : null}
+                  </div>
+                )}
 
-                {/* Purchase Order Section - for bulk items OR regular items if By Hand and selected */}
-                {(hasBulkItems || (hasRegularItems && transportMode === 'By Hand')) && (
-                  <button
-                    onClick={() => transportMode === 'By Hand' && setPaymentChoiceByHand('PURCHASE_ORDER')}
-                    className={`w-full p-4 rounded-xl border-2 text-left transition-all flex items-center gap-3 ${(transportMode === 'By Hand' && paymentChoiceByHand === 'PURCHASE_ORDER') || (transportMode !== 'By Hand' && hasBulkItems)
-                        ? 'border-amber-400 bg-amber-50'
-                        : 'border-[#E5E5E5] bg-white'
-                      }`}
-                  >
-                    <div className="w-10 h-10 bg-amber-500/10 rounded-lg flex items-center justify-center">
-                      <Package className="w-5 h-5 text-amber-600" />
-                    </div>
-                    <div className="flex-1">
-                      <span className="font-medium block text-amber-800">
-                        {transportMode === 'By Hand' ? 'By Hand (Self Pickup)' : 'Purchase Order (Bulk)'}
-                      </span>
-                      <span className="text-xs text-amber-700">
-                        {transportMode === 'By Hand'
-                          ? `Pay ₹${total} at pickup point`
-                          : `Our team will contact for ₹${bulkSubtotal}`
-                        }
-                      </span>
-                    </div>
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${(transportMode === 'By Hand' && paymentChoiceByHand === 'PURCHASE_ORDER') || (transportMode !== 'By Hand' && hasBulkItems)
-                        ? 'border-amber-500'
-                        : 'border-[#CCCCCC]'
-                      }`}>
-                      {(transportMode === 'By Hand' && paymentChoiceByHand === 'PURCHASE_ORDER' || (transportMode !== 'By Hand' && hasBulkItems)) && (
+                {/* Purchase Order Section - for bulk items */}
+                {hasBulkItems && (
+                  <div className="p-4 rounded-xl border-2 border-amber-400 bg-amber-50">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-amber-500/10 rounded-lg flex items-center justify-center">
+                        <Package className="w-5 h-5 text-amber-600" />
+                      </div>
+                      <div className="flex-1">
+                        <span className="font-medium block text-amber-800">Purchase Order (Bulk)</span>
+                        <span className="text-xs text-amber-700">
+                          Our team will contact for ₹{bulkSubtotal}
+                        </span>
+                      </div>
+                      <div className="w-5 h-5 rounded-full border-2 border-amber-500 flex items-center justify-center">
                         <div className="w-2.5 h-2.5 bg-amber-500 rounded-full" />
-                      )}
+                      </div>
                     </div>
-                  </button>
+                  </div>
                 )}
               </div>
 
