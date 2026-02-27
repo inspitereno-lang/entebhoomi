@@ -28,9 +28,10 @@ export const fetchOrderByIdApi = async (orderId) => {
 /**
  * Create order on backend
  * @param {string} addressId - Delivery address ID
+ * @param {string} transportMode - Mode of transport (e.g. 'Professional Courier', 'Hand', 'Delivery Team')
  */
-export const createOrderApi = async (addressId) => {
-    const response = await api.post('/order', { addressId });
+export const createOrderApi = async (addressId, transportMode) => {
+    const response = await api.post('/order', { addressId, transportMode });
     return response.data;
 };
 

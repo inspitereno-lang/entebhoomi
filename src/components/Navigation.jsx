@@ -280,7 +280,6 @@ export default function Navigation() {
               )}
             </button>
 
-            {/* Profile/Menu Toggle Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className={`${isRegistered ? 'flex' : 'hidden md:flex'} px-3 md:px-4 py-2 md:py-2.5 rounded-xl transition-all duration-300 items-center gap-2 font-bold shadow-sm ${isMobileMenuOpen
@@ -290,46 +289,13 @@ export default function Navigation() {
             >
               {isMobileMenuOpen ? (
                 <X className="w-5 h-5" />
-              ) : isRegistered ? (
-                <User className="w-5 h-5" />
               ) : (
                 <Menu className="w-5 h-5" />
               )}
               <span className="hidden md:inline">Menu</span>
             </button>
 
-            {isRegistered ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="hidden md:flex items-center gap-2 p-2 hover:bg-[#c4d4a4] rounded-xl transition-colors">
-                    <div className="w-9 h-9 bg-[#f1f7e8] rounded-full flex items-center justify-center">
-                      <User className="w-5 h-5 text-[#5bab00]" />
-                    </div>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => navigate('/profile')}>
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/orders')}>
-                    My Orders
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/addresses')}>
-                    Saved Addresses
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      logout();
-                      toast.success('Logged out successfully');
-                      navigate('/');
-                    }}
-                    className="text-red-600 focus:text-red-700 font-medium"
-                  >
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
+            {!isRegistered && (
               <Button
                 onClick={() => navigate('/login')}
                 className="btn-primary"

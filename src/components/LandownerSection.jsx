@@ -11,6 +11,7 @@ export default function LandownerSection() {
     city: '',
     district: '',
     areaSize: '',
+    crop: '',
     name: '',
     phone: '',
     email: '',
@@ -35,7 +36,7 @@ export default function LandownerSection() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.phone || !formData.streetOrLocality || !formData.city || !formData.district || !formData.areaSize || !formData.model) {
+    if (!formData.name || !formData.phone || !formData.streetOrLocality || !formData.city || !formData.district || !formData.areaSize || !formData.crop || !formData.model) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -51,6 +52,7 @@ export default function LandownerSection() {
       submitData.append('city', formData.city);
       submitData.append('district', formData.district);
       submitData.append('areaSize', formData.areaSize);
+      submitData.append('crop', formData.crop);
 
       if (formData.email) {
         submitData.append('email', formData.email);
@@ -63,7 +65,7 @@ export default function LandownerSection() {
       await submitLandownerEnquiryApi(submitData);
 
       toast.success('Your application has been submitted successfully.');
-      setFormData({ model: '', streetOrLocality: '', city: '', district: '', areaSize: '', name: '', phone: '', email: '', image: null });
+      setFormData({ model: '', streetOrLocality: '', city: '', district: '', areaSize: '', crop: '', name: '', phone: '', email: '', image: null });
       if (fileInputRef.current) fileInputRef.current.value = "";
       setIsModalOpen(false);
     } catch (error) {
@@ -410,17 +412,31 @@ export default function LandownerSection() {
                         />
                       </div>
                     </div>
-                    <div>
-                      <label className="mb-1 block text-sm font-semibold text-[#151d0c]">Area (Acres) *</label>
-                      <input
-                        name="areaSize"
-                        value={formData.areaSize}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full rounded-lg border border-gray-300 bg-[#fafcf8] px-4 py-2.5 text-[#151d0c] focus:border-[#5bab00] focus:ring-1 focus:ring-[#5bab00]"
-                        placeholder="0.0"
-                        type="number"
-                      />
+                    <div className="flex gap-4">
+                      <div className="w-1/2">
+                        <label className="mb-1 block text-sm font-semibold text-[#151d0c]">Area (Acres) *</label>
+                        <input
+                          name="areaSize"
+                          value={formData.areaSize}
+                          onChange={handleInputChange}
+                          required
+                          className="w-full rounded-lg border border-gray-300 bg-[#fafcf8] px-4 py-2.5 text-[#151d0c] focus:border-[#5bab00] focus:ring-1 focus:ring-[#5bab00]"
+                          placeholder="0.0"
+                          type="number"
+                        />
+                      </div>
+                      <div className="w-1/2">
+                        <label className="mb-1 block text-sm font-semibold text-[#151d0c]">Crop *</label>
+                        <input
+                          name="crop"
+                          value={formData.crop}
+                          onChange={handleInputChange}
+                          required
+                          className="w-full rounded-lg border border-gray-300 bg-[#fafcf8] px-4 py-2.5 text-[#151d0c] focus:border-[#5bab00] focus:ring-1 focus:ring-[#5bab00]"
+                          placeholder="e.g. Rubber, Coconut"
+                          type="text"
+                        />
+                      </div>
                     </div>
                     <div>
                       <label className="mb-1 block text-sm font-semibold text-[#151d0c]">Land Image (Optional)</label>

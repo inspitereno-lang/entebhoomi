@@ -548,7 +548,8 @@ export function StoreProvider({ children }) {
       // ═══════════════════════════════════════════════════════════════
       console.log('📦 STEP 1: Creating order on backend...');
       const addressId = orderData.deliveryAddress._id || orderData.deliveryAddress.id;
-      const orderResult = await createOrderApi(addressId);
+      const transportMode = orderData.transportMode || 'Professional Courier';
+      const orderResult = await createOrderApi(addressId, transportMode);
 
       if (!orderResult?.success) {
         throw new Error(orderResult?.msg || 'Failed to create order');

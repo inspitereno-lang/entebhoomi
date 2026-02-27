@@ -36,6 +36,7 @@ export default function CartPage() {
     addresses.find((a) => a.isDefault)?.id || addresses[0]?.id
   );
   const [paymentMethod, setPaymentMethod] = useState('online');
+  const [transportMode, setTransportMode] = useState('Professional Courier');
 
   // Detect if any cart item has quantity >= BULK_THRESHOLD
   const isBulkOrder = cart.some(item => item.quantity >= BULK_THRESHOLD);
@@ -70,6 +71,7 @@ export default function CartPage() {
         taxes,
         total,
         paymentMethod: isBulkOrder ? 'Purchase Order' : 'Online Payment',
+        transportMode,
         deliveryAddress: defaultAddress,
       });
       // Check if it was a bulk order
@@ -299,6 +301,35 @@ export default function CartPage() {
                   </div>
                 </div>
               )}
+
+              <div className="mb-6">
+                <h4 className="text-sm font-medium text-[#666666] mb-3">
+                  Mode of Transport
+                </h4>
+                <div className="space-y-2">
+                  {[
+                    { id: 'Professional Courier', title: 'By Professional Courier', desc: 'Standard parcel delivery' },
+                    { id: 'Hand', title: 'By Hand', desc: 'Pick up yourself' },
+                    { id: 'Delivery Team', title: 'Delivery Team', desc: 'Delivered by our team' }
+                  ].map((mode) => (
+                    <button
+                      key={mode.id}
+                      onClick={() => setTransportMode(mode.id)}
+                      className={`w-full p-4 rounded-xl border-2 text-left transition-colors flex items-center gap-3 ${transportMode === mode.id ? 'border-[#5bab00] bg-[#f1f7e8]' : 'border-[#E5E5E5] bg-white hover:border-[#5bab00]'}`}
+                    >
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${transportMode === mode.id ? 'border-[#5bab00]' : 'border-[#CCCCCC]'}`}
+                      >
+                        {transportMode === mode.id && <div className="w-2.5 h-2.5 bg-[#5bab00] rounded-full" />}
+                      </div>
+                      <div>
+                        <span className="font-medium text-[#1A1A1A] block">{mode.title}</span>
+                        <span className="text-xs text-[#666666]">{mode.desc}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               <div className="mb-6">
                 <h4 className="text-sm font-medium text-[#666666] mb-3">
