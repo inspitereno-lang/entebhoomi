@@ -15,7 +15,7 @@ export default function LandownerSection() {
     name: '',
     phone: '',
     email: '',
-    image: null
+    images: []
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,9 +29,34 @@ export default function LandownerSection() {
   };
 
   const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData((prev) => ({ ...prev, image: e.target.files[0] }));
+    if (e.target.files) {
+      const selectedFiles = Array.from(e.target.files);
+      const totalImages = formData.images.length + selectedFiles.length;
+
+      if (totalImages > 4) {
+        toast.error('You can only upload up to 4 images');
+        const remainingSlots = 4 - formData.images.length;
+        if (remainingSlots > 0) {
+          setFormData((prev) => ({
+            ...prev,
+            images: [...prev.images, ...selectedFiles.slice(0, remainingSlots)]
+          }));
+        }
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        images: [...prev.images, ...selectedFiles]
+      }));
     }
+  };
+
+  const removeImage = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -61,14 +86,16 @@ export default function LandownerSection() {
         submitData.append('email', formData.email);
       }
 
-      if (formData.image) {
-        submitData.append('images', formData.image);
+      if (formData.images && formData.images.length > 0) {
+        formData.images.forEach(img => {
+          submitData.append('images', img);
+        });
       }
 
       await submitLandownerEnquiryApi(submitData);
 
       toast.success('Your application has been submitted successfully.');
-      setFormData({ model: '', streetOrLocality: '', city: '', district: '', areaSize: '', crop: '', name: '', phone: '', email: '', image: null });
+      setFormData({ model: '', streetOrLocality: '', city: '', district: '', areaSize: '', crop: '', name: '', phone: '', email: '', images: [] });
       if (fileInputRef.current) fileInputRef.current.value = "";
       setIsModalOpen(false);
     } catch (error) {
@@ -495,22 +522,48 @@ export default function LandownerSection() {
                         </div>
                       )}
                     </div>
-                    <div>
-                      <label className="mb-1 block text-sm font-semibold text-[#151d0c]">Land Image (Optional)</label>
-                      <div className="flex w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-[#fafcf8] p-4 hover:bg-gray-50 cursor-pointer transition-colors relative">
-                        <input
-                          type="file"
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                          onChange={handleFileChange}
-                          ref={fileInputRef}
-                          accept="image/*"
-                        />
-                        <div className="text-center pointer-events-none">
-                          <span className="material-symbols-outlined mx-auto text-3xl text-gray-400">add_photo_alternate</span>
-                          <p className="mt-1 text-xs text-gray-500">
-                            {formData.image ? `Selected: ${formData.image.name}` : 'Upload a photo of your land'}
-                          </p>
+                    <div className="mt-4 pt-6 border-t border-gray-100">
+                      <label className="mb-3 block text-sm font-bold text-[#151d0c] uppercase tracking-wider">Property Photos</label>
+                      <p className="text-xs text-[#666666] mb-3">Please upload up to 4 clear photos of your land or godown</p>
+                      <div className="space-y-4">
+                        <div className="flex w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-[#fafcf8] p-4 hover:bg-gray-50 cursor-pointer transition-colors relative">
+                          <input
+                            type="file"
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            onChange={handleFileChange}
+                            ref={fileInputRef}
+                            accept="image/*"
+                            multiple
+                          />
+                          <div className="text-center pointer-events-none">
+                            <span className="material-symbols-outlined mx-auto text-3xl text-gray-400">add_photo_alternate</span>
+                            <p className="mt-1 text-xs text-gray-500">
+                              Upload photos of your land
+                            </p>
+                          </div>
                         </div>
+
+                        {/* Image Preview Gallery */}
+                        {formData.images.length > 0 && (
+                          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
+                            {formData.images.map((file, index) => (
+                              <div key={index} className="relative group aspect-square rounded-lg overflow-hidden border border-gray-200">
+                                <img
+                                  src={URL.createObjectURL(file)}
+                                  alt={`Preview ${index}`}
+                                  className="w-full h-full object-cover"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => removeImage(index)}
+                                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <span className="material-symbols-outlined text-xs">close</span>
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
