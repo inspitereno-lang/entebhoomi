@@ -112,10 +112,18 @@ export default function ProductDetailPage() {
     }
 
     const cartItem = cart.find(item => item.product.id === product.id);
-    const currentCartQuantity = cartItem ? cartItem.quantity : 0;
 
-    if (currentCartQuantity + quantity > product.stock) {
+    if (quantity > product.stock) {
       toast.error(`Cannot add more items. Only ${product.stock} left in stock.`);
+      return;
+    }
+
+    if (quantity === 0) {
+      if (cartItem) {
+        removeFromCart(product.id);
+      } else {
+        toast.error('Please select a quantity greater than 0');
+      }
       return;
     }
 
@@ -226,19 +234,68 @@ export default function ProductDetailPage() {
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-3 bg-[#F5F5F5] rounded-xl p-1">
                   <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    onClick={() => {
+                      const newQuantity = Math.max(0, quantity - 1);
+                      setQuantity(newQuantity);
+                      const cartItem = cart.find(item => item.product.id === product.id);
+                      if (cartItem) {
+                        if (newQuantity === 0) {
+                          removeFromCart(product.id);
+                        } else {
+                          updateQuantity(product.id, newQuantity);
+                        }
+                      }
+                    }}
                     className="w-10 h-10 bg-white rounded-lg flex items-center justify-center hover:bg-[#f1f7e8] transition-colors"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
-                  <span className="w-8 text-center font-semibold">{quantity}</span>
+                  <input
+                    type="number"
+                    value={quantity === 0 ? '' : quantity}
+                    onChange={(e) => {
+                      const cartItem = cart.find(item => item.product.id === product.id);
+                      if (e.target.value === '') {
+                        setQuantity(0);
+                        if (cartItem) removeFromCart(product.id);
+                        return;
+                      }
+                      const val = parseInt(e.target.value, 10);
+                      if (!isNaN(val)) {
+                        if (val > product.stock) {
+                          toast.error(`Only ${product.stock} items available`);
+                          setQuantity(product.stock);
+                          if (cartItem) updateQuantity(product.id, product.stock);
+                        } else {
+                          const newQuantity = Math.max(0, val);
+                          setQuantity(newQuantity);
+                          if (cartItem) {
+                            if (newQuantity === 0) {
+                              removeFromCart(product.id);
+                            } else {
+                              updateQuantity(product.id, newQuantity);
+                            }
+                          }
+                        }
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value === '') setQuantity(0);
+                    }}
+                    className="w-12 text-center font-semibold bg-transparent border-none outline-none focus:ring-2 focus:ring-[#5bab00] rounded-md [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    min="0"
+                    max={product.stock}
+                  />
                   <button
                     onClick={() => {
                       if (quantity >= product.stock) {
                         toast.error('Out of stock');
                         return;
                       }
-                      setQuantity(quantity + 1);
+                      const newQuantity = quantity + 1;
+                      setQuantity(newQuantity);
+                      const cartItem = cart.find(item => item.product.id === product.id);
+                      if (cartItem) updateQuantity(product.id, newQuantity);
                     }}
                     className="w-10 h-10 bg-white rounded-lg flex items-center justify-center hover:bg-[#f1f7e8] transition-colors"
                   >
@@ -269,12 +326,18 @@ export default function ProductDetailPage() {
 
             <Button
               onClick={handleAddToCart}
-              disabled={product.stock <= 0 || !product.isAvailable}
+              disabled={product.stock <= 0 || !product.isAvailable || (quantity === 0 && !cart.find(item => item.product.id === product.id))}
               className={`w-full btn-primary py-4 h-14 text-lg flex items-center justify-center gap-2 ${product.stock <= 0 || !product.isAvailable ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
             >
               <ShoppingCart className="w-5 h-5" />
-              {product.stock <= 0 || !product.isAvailable ? 'Out of Stock' : `Add to Cart - ₹${product.price * quantity}`}
+              {product.stock <= 0 || !product.isAvailable
+                ? 'Out of Stock'
+                : cart.find(item => item.product.id === product.id)
+                  ? 'Update Cart'
+                  : quantity === 0
+                    ? 'Select Quantity'
+                    : `Add to Cart - ₹${product.price * quantity}`}
             </Button>
 
             <div className="grid grid-cols-3 gap-4 pt-4 border-t border-[#E5E5E5]">
