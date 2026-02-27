@@ -24,6 +24,7 @@ import TermsPage from './pages/TermsPage.jsx';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage.jsx';
 import ContactPage from './pages/ContactPage.jsx';
 import BulkOrderSuccessPage from './pages/BulkOrderSuccessPage.jsx';
+import MixedOrderSuccessPage from './pages/MixedOrderSuccessPage.jsx';
 import { Toaster } from './components/ui/sonner.jsx';
 import ScrollToTop from './components/ScrollToTop.jsx';
 
@@ -54,6 +55,7 @@ function AppContent() {
           <Route path="/payment-success" element={<PaymentSuccessPage />} />
           <Route path="/payment-failure" element={<PaymentFailurePage />} />
           <Route path="/bulk-order-success" element={<BulkOrderSuccessPage />} />
+          <Route path="/mixed-order-success" element={<MixedOrderSuccessPage />} />
           <Route path="/addresses" element={<AddressesPage />} />
           <Route path="/add-address" element={<AddAddressPage />} />
           <Route path="/edit-profile" element={<EditProfilePage />} />

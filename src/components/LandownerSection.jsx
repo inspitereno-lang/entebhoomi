@@ -36,7 +36,10 @@ export default function LandownerSection() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.phone || !formData.streetOrLocality || !formData.city || !formData.district || !formData.areaSize || !formData.crop || !formData.model) {
+    const isGodown = formData.model === 'Godown Partnership';
+    const isCropRequired = !isGodown;
+
+    if (!formData.name || !formData.phone || !formData.streetOrLocality || !formData.city || !formData.district || !formData.areaSize || (isCropRequired && !formData.crop) || !formData.model) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -304,6 +307,56 @@ export default function LandownerSection() {
               </div>
             </div>
           </div>
+
+          {/* Model 5: Godown Partnership */}
+          <div className="group relative overflow-hidden flex flex-col items-start justify-end rounded-2xl bg-white shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] min-h-[400px]">
+            {/* Background Image */}
+            <div
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+              style={{ backgroundImage: "url('/interior-large-distribution-warehouse-with-shelves-stacked-with-palettes-goods-ready-market.jpg')" }}
+            ></div>
+            {/* Dark Gradient Overlay for Readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#151d0c]/95 via-[#151d0c]/80 to-transparent"></div>
+
+            <div className="relative z-10 p-6 md:p-8 w-full h-full flex flex-col justify-end mt-20">
+              <div className="flex items-center gap-4 mb-5">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#5bab00] text-white shadow-lg shadow-[#5bab00]/30">
+                  <span className="material-symbols-outlined text-2xl">warehouse</span>
+                </div>
+                <h3 className="text-2xl md:text-3xl font-black text-white drop-shadow-md leading-tight">Godown – Partnership Model</h3>
+              </div>
+
+              <ul className="text-sm md:text-base text-gray-200 leading-relaxed list-none space-y-2 mb-6 max-w-2xl">
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">Professional warehouse management by Ente Bhoomi</span></li>
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">Integrated logistics and distribution network</span></li>
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">Higher utilization of storage space</span></li>
+                <li className="flex items-start gap-2.5"><span className="text-[#5bab00] font-black text-lg">✓</span> <span className="pt-0.5">Net profit sharing: 60% to owner, 40% to Ente Bhoomi</span></li>
+              </ul>
+
+              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pt-6 border-t border-white/20">
+                <div className="flex items-center gap-2.5 text-sm md:text-base font-bold text-white bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/20 w-fit">
+                  <span className="material-symbols-outlined text-xl text-[#5bab00]">check_circle</span>
+                  Strategic partnership for storage and distribution efficiency
+                </div>
+
+                <button
+                  onClick={() => {
+                    if (!isRegistered) {
+                      toast.error('Please login to select a partnership model');
+                      navigate('/login');
+                      return;
+                    }
+                    setFormData(prev => ({ ...prev, model: "Godown Partnership" }));
+                    setIsModalOpen(true);
+                  }}
+                  className="w-full lg:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#5bab00] px-8 py-3.5 text-base font-bold text-white shadow-lg shadow-[#5bab00]/40 transition-all hover:bg-[#4a8a00] hover:scale-105"
+                >
+                  Select Model
+                  <span className="material-symbols-outlined text-xl">arrow_forward</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         {isModalOpen && (
@@ -412,31 +465,35 @@ export default function LandownerSection() {
                         />
                       </div>
                     </div>
-                    <div className="flex gap-4">
-                      <div className="w-1/2">
-                        <label className="mb-1 block text-sm font-semibold text-[#151d0c]">Area (Acres) *</label>
+                    <div className="flex flex-col md:flex-row gap-4">
+                      <div className={formData.model === 'Godown Partnership' ? "w-full" : "w-full md:w-1/2"}>
+                        <label className="mb-1 block text-sm font-semibold text-[#151d0c]">
+                          {formData.model === 'Godown Partnership' ? 'Land/Godown Area (Sq.Ft/Acres) *' : 'Area (Acres) *'}
+                        </label>
                         <input
                           name="areaSize"
                           value={formData.areaSize}
                           onChange={handleInputChange}
                           required
                           className="w-full rounded-lg border border-gray-300 bg-[#fafcf8] px-4 py-2.5 text-[#151d0c] focus:border-[#5bab00] focus:ring-1 focus:ring-[#5bab00]"
-                          placeholder="0.0"
-                          type="number"
+                          placeholder={formData.model === 'Godown Partnership' ? "e.g. 5000 Sq.Ft or 2 Acres" : "0.0"}
+                          type={formData.model === 'Godown Partnership' ? "text" : "number"}
                         />
                       </div>
-                      <div className="w-1/2">
-                        <label className="mb-1 block text-sm font-semibold text-[#151d0c]">Crop *</label>
-                        <input
-                          name="crop"
-                          value={formData.crop}
-                          onChange={handleInputChange}
-                          required
-                          className="w-full rounded-lg border border-gray-300 bg-[#fafcf8] px-4 py-2.5 text-[#151d0c] focus:border-[#5bab00] focus:ring-1 focus:ring-[#5bab00]"
-                          placeholder="e.g. Rubber, Coconut"
-                          type="text"
-                        />
-                      </div>
+                      {formData.model !== 'Godown Partnership' && (
+                        <div className="w-full md:w-1/2">
+                          <label className="mb-1 block text-sm font-semibold text-[#151d0c]">Crop *</label>
+                          <input
+                            name="crop"
+                            value={formData.crop}
+                            onChange={handleInputChange}
+                            required
+                            className="w-full rounded-lg border border-gray-300 bg-[#fafcf8] px-4 py-2.5 text-[#151d0c] focus:border-[#5bab00] focus:ring-1 focus:ring-[#5bab00]"
+                            placeholder="e.g. Rubber, Coconut"
+                            type="text"
+                          />
+                        </div>
+                      )}
                     </div>
                     <div>
                       <label className="mb-1 block text-sm font-semibold text-[#151d0c]">Land Image (Optional)</label>

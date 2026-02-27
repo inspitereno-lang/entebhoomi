@@ -62,12 +62,12 @@ export const removeFromCartApi = async (productId) => {
 
 /**
  * Sync local cart with backend (if needed)
- * @param {Array} foodIds - List of product IDs from local cart
+ * @param {Array} items - List of { productId, quantity } objects from local cart
  */
-export const syncCartApi = async (foodIds) => {
-    if (!foodIds || foodIds.length === 0) return null;
+export const syncCartApi = async (items) => {
+    if (!items || items.length === 0) return null;
 
-    const response = await api.post('/cart/sync', { foodIds });
+    const response = await api.post('/cart/sync', { items });
     return response.data;
 };
 
@@ -85,6 +85,7 @@ export const normalizeCartItems = (items) => {
             shop: item.storeName || 'Store'
         },
         quantity: item.quantity || 1,
-        totalPrice: item.totalPrice || (item.quantity * item.price) || 0
+        totalPrice: item.totalPrice || (item.quantity * item.price) || 0,
+        bulkThreshold: item.bulkThreshold || 20
     }));
 };

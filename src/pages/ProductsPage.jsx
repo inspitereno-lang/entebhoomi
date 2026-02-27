@@ -120,6 +120,7 @@ export default function ProductsPage() {
           shop: p.storeName || (p.storeId && p.storeId.storeName) || 'Unknown Store',
           rating: p.rating || 4.5,
           stock: p.quantity !== undefined ? p.quantity : 0,
+          bulkThreshold: p.bulkThreshold || 20,
           discount: p.discount || 0,
           originalPrice: p.originalPrice || Math.round(p.price * 1.2)
         }));
@@ -178,10 +179,7 @@ export default function ProductsPage() {
       navigate('/login');
       return;
     }
-    if (product.stock <= 0) {
-      toast.error('Item is out of stock');
-      return;
-    }
+    // Backend handles stock/bulk logic
     addToCart(product, 1);
   };
 
@@ -472,9 +470,7 @@ export default function ProductsPage() {
                               e.stopPropagation();
                               handleAddToCart(product);
                             }}
-                            disabled={product.stock <= 0}
-                            className={`w-10 h-10 bg-[#5bab00] text-white rounded-xl flex items-center justify-center hover:bg-[#468a00] transition-colors hover:scale-105 active:scale-95 ${product.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''
-                              }`}
+                            className="w-10 h-10 bg-[#5bab00] text-white rounded-xl flex items-center justify-center hover:bg-[#468a00] transition-colors hover:scale-105 active:scale-95"
                           >
                             <Plus className="w-5 h-5" />
                           </button>

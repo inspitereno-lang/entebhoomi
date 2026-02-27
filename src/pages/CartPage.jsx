@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ChevronLeft,
@@ -10,14 +10,15 @@ import {
   Tag,
   ChevronRight,
   Package,
-  AlertTriangle
+  AlertTriangle,
+  CreditCard,
+  ShoppingBag,
+  Zap
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext.jsx';
 import { Button } from '../components/ui/button.jsx';
 import { toast } from '../components/ui/sonner';
 import { normalizeImageUrl } from '../utils/utils.js';
-
-const BULK_THRESHOLD = 20;
 
 export default function CartPage() {
   const navigate = useNavigate();
@@ -35,14 +36,31 @@ export default function CartPage() {
   const [selectedAddress] = useState(
     addresses.find((a) => a.isDefault)?.id || addresses[0]?.id
   );
-  const [paymentMethod, setPaymentMethod] = useState('online');
-  const [transportMode, setTransportMode] = useState('Professional Courier');
+  const [transportMode, setTransportMode] = useState('Delivery Team');
+  const [paymentChoiceByHand, setPaymentChoiceByHand] = useState('RAZORPAY'); // 'RAZORPAY' or 'PURCHASE_ORDER'
 
-  // Detect if any cart item has quantity >= BULK_THRESHOLD
-  const isBulkOrder = cart.some(item => item.quantity >= BULK_THRESHOLD);
-  const bulkItems = cart.filter(item => item.quantity >= BULK_THRESHOLD);
+  // Categorize items into regular and bulk using per-product threshold
+  const regularItems = cart.filter(item => {
+    const threshold = item.bulkThreshold || 20;
+    return item.quantity <= threshold;
+  });
 
-  // Mock data as requested: Fees and taxes are not coming from backend yet
+  const bulkItems = cart.filter(item => {
+    const threshold = item.bulkThreshold || 20;
+    return item.quantity > threshold;
+  });
+
+  const hasBulkItems = bulkItems.length > 0;
+  const hasRegularItems = regularItems.length > 0;
+
+  // Calculate subtotals
+  const regularSubtotal = regularItems.reduce(
+    (sum, item) => sum + item.product.price * item.quantity, 0
+  );
+  const bulkSubtotal = bulkItems.reduce(
+    (sum, item) => sum + item.product.price * item.quantity, 0
+  );
+
   const deliveryFee = 0;
   const taxes = 0;
   const total = cartTotal + deliveryFee + taxes;
@@ -70,21 +88,22 @@ export default function CartPage() {
         deliveryFee,
         taxes,
         total,
-        paymentMethod: isBulkOrder ? 'Purchase Order' : 'Online Payment',
+        paymentMethod: transportMode === 'By Hand' ? paymentChoiceByHand : (hasBulkItems ? 'Purchase Order' : 'Online Payment'),
         transportMode,
         deliveryAddress: defaultAddress,
       });
-      // Check if it was a bulk order
-      if (order.isBulk) {
+      if (order.isBulk && hasRegularItems) {
+        // Mixed order (Razorpay paid + Bulk items included)
+        navigate('/mixed-order-success', { state: { orderId: order.id } });
+      } else if (order.isBulk) {
+        // Pure bulk order (Purchase Order)
         navigate('/bulk-order-success', { state: { orderId: order.id } });
       } else {
+        // Pure regular order (Razorpay paid)
         navigate('/payment-success', { state: { orderId: order.id } });
       }
     } catch (error) {
       console.error('Order placement error:', error);
-      // Error toasts handled in StoreContext
-
-      // Check for any payment-related keywords to redirect
       if (error.message && (
         error.message.toLowerCase().includes('payment') ||
         error.message.toLowerCase().includes('cancel') ||
@@ -96,6 +115,94 @@ export default function CartPage() {
       setIsPlacingOrder(false);
     }
   };
+
+  // Render a cart item row
+  const renderCartItem = (item, index, isBulkSection = false) => (
+    <div
+      key={`${item.product?.id || item._id}-${index}`}
+      className={`flex flex-col sm:flex-row gap-4 pb-6 border-b last:border-0 last:pb-0 ${isBulkSection ? 'border-amber-200' : 'border-[#E5E5E5]'
+        }`}
+    >
+      <div className="flex gap-4">
+        <div className="relative">
+          <img
+            src={normalizeImageUrl(item.product.image)}
+            alt={item.product.name}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = '/product-placeholder.png';
+            }}
+            className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-xl bg-[#F5F5F5] flex-shrink-0"
+          />
+          {isBulkSection && (
+            <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md">
+              BULK
+            </div>
+          )}
+        </div>
+        <div className="flex-1 sm:hidden">
+          <h3 className="font-medium text-[#1A1A1A] line-clamp-2 mb-1">
+            {item.product.name}
+          </h3>
+          <p className="text-xs text-[#666666] mb-1">{item.product.shop}</p>
+          <p className="text-sm font-bold text-[#5bab00]">
+            ₹{item.product.price}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex-1">
+        <div className="hidden sm:block">
+          <h3 className="font-medium text-[#1A1A1A] line-clamp-2 mb-1">
+            {item.product.name}
+          </h3>
+          <p className="text-sm text-[#666666] mb-2">{item.product.shop}</p>
+          <p className="text-sm text-[#5bab00] mb-3">
+            ₹{item.product.price} per item
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between mt-2 sm:mt-0">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+              className="w-8 h-8 bg-[#F5F5F5] rounded-lg flex items-center justify-center hover:bg-[#f1f7e8] transition-colors"
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+            <span className="w-8 text-center font-medium">
+              {item.quantity}
+            </span>
+            <button
+              onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+              className="w-8 h-8 bg-[#F5F5F5] rounded-lg flex items-center justify-center hover:bg-[#f1f7e8] transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <span className={`font-bold text-lg ${isBulkSection ? 'text-amber-600' : 'text-[#5bab00]'}`}>
+              ₹{item.product.price * item.quantity}
+            </span>
+            <button
+              onClick={() => removeFromCart(item.product.id)}
+              className="w-8 h-8 bg-[#FFF3ED] rounded-lg flex items-center justify-center hover:bg-[#E85A24]/20 transition-colors"
+            >
+              <Trash2 className="w-4 h-4 text-[#E85A24]" />
+            </button>
+          </div>
+        </div>
+
+        {isBulkSection && (
+          <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-1.5 w-fit">
+            <AlertTriangle className="w-3 h-3" />
+            Qty exceeds {item.bulkThreshold || 20} — processed as bulk enquiry
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
   if (cart.length === 0) {
     return (
@@ -134,7 +241,9 @@ export default function CartPage() {
         </h1>
 
         <div className="grid lg:grid-cols-3 gap-8">
+          {/* ================= LEFT: ITEMS ================= */}
           <div className="lg:col-span-2 space-y-4">
+            {/* Delivery Address */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-[#1A1A1A] flex items-center gap-2">
@@ -176,85 +285,67 @@ export default function CartPage() {
               )}
             </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-sm space-y-6">
-              {cart.map((item, index) => (
-                <div
-                  key={`${item.product?.id || item._id}-${index}`}
-                  className="flex flex-col sm:flex-row gap-4 pb-6 border-b border-[#E5E5E5] last:border-0 last:pb-0"
-                >
-                  {/* Image & Basic Info Wrapper for Mobile */}
-                  <div className="flex gap-4">
-                    <img
-                      src={normalizeImageUrl(item.product.image)}
-                      alt={item.product.name}
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = '/product-placeholder.png';
-                      }}
-                      className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-xl bg-[#F5F5F5] flex-shrink-0"
-                    />
-                    <div className="flex-1 sm:hidden">
-                      {/* Mobile View Title */}
-                      <h3 className="font-medium text-[#1A1A1A] line-clamp-2 mb-1">
-                        {item.product.name}
-                      </h3>
-                      <p className="text-xs text-[#666666] mb-1">{item.product.shop}</p>
-                      <p className="text-sm font-bold text-[#5bab00]">
-                        ₹{item.product.price}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Desktop View Details & Controls */}
-                  <div className="flex-1">
-                    <div className="hidden sm:block">
-                      <h3 className="font-medium text-[#1A1A1A] line-clamp-2 mb-1">
-                        {item.product.name}
-                      </h3>
-                      <p className="text-sm text-[#666666] mb-2">{item.product.shop}</p>
-                      <p className="text-sm text-[#5bab00] mb-3">
-                        ₹{item.product.price} per item
-                      </p>
-                    </div>
-
-                    <div className="flex items-center justify-between mt-2 sm:mt-0">
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                          className="w-8 h-8 bg-[#F5F5F5] rounded-lg flex items-center justify-center hover:bg-[#f1f7e8] transition-colors"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="w-8 text-center font-medium">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                          className="w-8 h-8 bg-[#F5F5F5] rounded-lg flex items-center justify-center hover:bg-[#f1f7e8] transition-colors"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </div>
-
-                      <div className="flex items-center gap-4">
-                        <span className="font-bold text-[#5bab00] text-lg">
-                          ₹{item.product.price * item.quantity}
-                        </span>
-                        <button
-                          onClick={() => removeFromCart(item.product.id)}
-                          className="w-8 h-8 bg-[#FFF3ED] rounded-lg flex items-center justify-center hover:bg-[#E85A24]/20 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4 text-[#E85A24]" />
-                        </button>
-                      </div>
+            {/* ================= REGULAR ITEMS SECTION ================= */}
+            {hasRegularItems && (
+              <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <div className="px-6 py-4 bg-gradient-to-r from-[#f1f7e8] to-white border-b border-[#E5E5E5]">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-[#1A1A1A] flex items-center gap-2">
+                      <ShoppingBag className="w-5 h-5 text-[#5bab00]" />
+                      Regular Items
+                      <span className="text-xs bg-[#5bab00] text-white px-2 py-0.5 rounded-full">
+                        {regularItems.length}
+                      </span>
+                    </h3>
+                    <div className="flex items-center gap-1.5 text-sm">
+                      <CreditCard className="w-4 h-4 text-[#5bab00]" />
+                      <span className="text-[#666666]">Pay via</span>
+                      <span className="font-medium text-[#5bab00]">Razorpay</span>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
+                <div className="p-6 space-y-6">
+                  {regularItems.map((item, index) => renderCartItem(item, index, false))}
+                </div>
+              </div>
+            )}
+
+            {/* ================= BULK ITEMS SECTION ================= */}
+            {hasBulkItems && (
+              <div className="bg-white rounded-2xl shadow-sm overflow-hidden border-2 border-amber-200">
+                <div className="px-6 py-4 bg-gradient-to-r from-amber-50 to-amber-50/30 border-b border-amber-200">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-amber-800 flex items-center gap-2">
+                      <Package className="w-5 h-5 text-amber-600" />
+                      Bulk Order Items
+                      <span className="text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full">
+                        {bulkItems.length}
+                      </span>
+                    </h3>
+                    <div className="flex items-center gap-1.5 text-sm">
+                      <Zap className="w-4 h-4 text-amber-600" />
+                      <span className="text-amber-700 font-medium">Purchase Order</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="px-6 pt-3 pb-1">
+                  <div className="p-3 bg-amber-50 rounded-xl flex items-start gap-3 text-xs text-amber-700 border border-amber-100">
+                    <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                    <span>
+                      These items exceed the bulk threshold. They'll be processed as a <strong>Purchase Order</strong> — our team will contact you to confirm pricing & delivery within 24 hours.
+                    </span>
+                  </div>
+                </div>
+                <div className="p-6 space-y-6">
+                  {bulkItems.map((item, index) => renderCartItem(item, index, true))}
+                </div>
+              </div>
+            )}
           </div>
 
+          {/* ================= RIGHT: ORDER SUMMARY ================= */}
           <div className="space-y-4">
+            {/* Bill Summary */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
               <h3 className="font-semibold text-[#1A1A1A] mb-4 flex items-center gap-2">
                 <Tag className="w-5 h-5 text-[#5bab00]" />
@@ -262,10 +353,24 @@ export default function CartPage() {
               </h3>
 
               <div className="space-y-3 mb-4">
-                <div className="flex justify-between text-[#666666]">
-                  <span>Item Total</span>
-                  <span>₹{cartTotal}</span>
-                </div>
+                {hasRegularItems && (
+                  <div className="flex justify-between text-[#666666]">
+                    <span className="flex items-center gap-1.5">
+                      <ShoppingBag className="w-3.5 h-3.5" />
+                      Regular Items
+                    </span>
+                    <span>₹{regularSubtotal}</span>
+                  </div>
+                )}
+                {hasBulkItems && (
+                  <div className="flex justify-between text-amber-700">
+                    <span className="flex items-center gap-1.5">
+                      <Package className="w-3.5 h-3.5" />
+                      Bulk Items
+                    </span>
+                    <span>₹{bulkSubtotal}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-[#666666]">
                   <span className="flex items-center gap-1">
                     <Truck className="w-4 h-4" />
@@ -288,41 +393,32 @@ export default function CartPage() {
                 </div>
               </div>
 
-              {/* Bulk Order Banner */}
-              {isBulkOrder && (
-                <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-semibold text-amber-800 mb-1">Bulk Order Detected</p>
-                    <p className="text-xs text-amber-700">
-                      Your cart has {bulkItems.length} item{bulkItems.length > 1 ? 's' : ''} with 20+ quantity.
-                      This will be processed as a Purchase Order — our team will contact you to confirm pricing & delivery.
-                    </p>
-                  </div>
-                </div>
-              )}
-
+              {/* Transport Mode */}
               <div className="mb-6">
                 <h4 className="text-sm font-medium text-[#666666] mb-3">
                   Mode of Transport
                 </h4>
                 <div className="space-y-2">
                   {[
-                    { id: 'Professional Courier', title: 'By Professional Courier', desc: 'Standard parcel delivery' },
-                    { id: 'Hand', title: 'By Hand', desc: 'Pick up yourself' },
-                    { id: 'Delivery Team', title: 'Delivery Team', desc: 'Delivered by our team' }
+                    { id: 'Delivery Team', title: 'Delivery Team', desc: 'Delivered by our team', icon: Truck },
+                    { id: 'By Hand', title: 'By Hand', desc: 'Pick up yourself', icon: ShoppingBag },
+                    { id: 'Professional Courier', title: 'Professional Courier', desc: 'Ships via third-party courier', icon: Truck }
                   ].map((mode) => (
                     <button
                       key={mode.id}
                       onClick={() => setTransportMode(mode.id)}
-                      className={`w-full p-4 rounded-xl border-2 text-left transition-colors flex items-center gap-3 ${transportMode === mode.id ? 'border-[#5bab00] bg-[#f1f7e8]' : 'border-[#E5E5E5] bg-white hover:border-[#5bab00]'}`}
+                      className={`w-full p-4 rounded-xl border-2 text-left transition-all flex items-center gap-3 ${transportMode === mode.id
+                        ? 'border-[#5bab00] bg-[#f1f7e8] shadow-sm'
+                        : 'border-[#E5E5E5] bg-white hover:border-[#5bab00]/50'
+                        }`}
                     >
                       <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${transportMode === mode.id ? 'border-[#5bab00]' : 'border-[#CCCCCC]'}`}
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${transportMode === mode.id ? 'border-[#5bab00]' : 'border-[#CCCCCC]'
+                          }`}
                       >
                         {transportMode === mode.id && <div className="w-2.5 h-2.5 bg-[#5bab00] rounded-full" />}
                       </div>
-                      <div>
+                      <div className="flex-1">
                         <span className="font-medium text-[#1A1A1A] block">{mode.title}</span>
                         <span className="text-xs text-[#666666]">{mode.desc}</span>
                       </div>
@@ -331,55 +427,100 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-[#666666] mb-3">
-                  Payment Method
+              {/* ================= PAYMENT SECTIONS ================= */}
+              <div className="space-y-4 mb-6">
+                <h4 className="text-sm font-medium text-[#666666]">
+                  How you'll pay
                 </h4>
-                {isBulkOrder ? (
-                  <div className="w-full p-4 rounded-xl border-2 text-left transition-colors flex items-center gap-3 border-[#5bab00] bg-[#f1f7e8]">
-                    <div className="w-10 h-10 bg-[#5bab00]/10 rounded-lg flex items-center justify-center">
-                      <Package className="w-5 h-5 text-[#5bab00]" />
-                    </div>
-                    <div>
-                      <span className="font-medium block text-[#1A1A1A]">Purchase Order (Bulk)</span>
-                      <span className="text-xs text-[#666666]">
-                        Our team will contact you for pricing & delivery
-                      </span>
-                    </div>
-                  </div>
-                ) : (
+
+                {/* Razorpay Section - show if not By Hand OR if By Hand and selected */}
+                {(transportMode !== 'By Hand' && hasRegularItems) || (transportMode === 'By Hand' && hasRegularItems) ? (
                   <button
-                    onClick={() => setPaymentMethod('online')}
-                    className={`w-full p-4 rounded-xl border-2 text-left transition-colors flex items-center gap-3 border-[#5bab00] bg-[#f1f7e8]`}
+                    onClick={() => transportMode === 'By Hand' && setPaymentChoiceByHand('RAZORPAY')}
+                    className={`w-full p-4 rounded-xl border-2 text-left transition-all flex items-center gap-3 ${(transportMode !== 'By Hand' || paymentChoiceByHand === 'RAZORPAY')
+                        ? 'border-[#5bab00] bg-[#f1f7e8]'
+                        : 'border-[#E5E5E5] bg-white'
+                      }`}
                   >
-                    <div
-                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center border-[#5bab00]`}
-                    >
-                      <div className="w-2.5 h-2.5 bg-[#5bab00] rounded-full" />
+                    <div className="w-10 h-10 bg-[#5bab00]/10 rounded-lg flex items-center justify-center">
+                      <CreditCard className="w-5 h-5 text-[#5bab00]" />
                     </div>
-                    <div>
-                      <span className="font-medium block">Online Payment</span>
+                    <div className="flex-1">
+                      <span className="font-medium block text-[#1A1A1A]">Online Payment (Razorpay)</span>
                       <span className="text-xs text-[#666666]">
-                        UPI, Cards, Net Banking (Razorpay)
+                        {transportMode === 'By Hand'
+                          ? `Pay ₹${total} online now`
+                          : `Pay for regular items now — ₹${regularSubtotal}`}
                       </span>
+                    </div>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${(transportMode !== 'By Hand' || paymentChoiceByHand === 'RAZORPAY') ? 'border-[#5bab00]' : 'border-[#CCCCCC]'
+                      }`}>
+                      {(transportMode !== 'By Hand' || paymentChoiceByHand === 'RAZORPAY') && (
+                        <div className="w-2.5 h-2.5 bg-[#5bab00] rounded-full" />
+                      )}
+                    </div>
+                  </button>
+                ) : null}
+
+                {/* Purchase Order Section - for bulk items OR regular items if By Hand and selected */}
+                {(hasBulkItems || (hasRegularItems && transportMode === 'By Hand')) && (
+                  <button
+                    onClick={() => transportMode === 'By Hand' && setPaymentChoiceByHand('PURCHASE_ORDER')}
+                    className={`w-full p-4 rounded-xl border-2 text-left transition-all flex items-center gap-3 ${(transportMode === 'By Hand' && paymentChoiceByHand === 'PURCHASE_ORDER') || (transportMode !== 'By Hand' && hasBulkItems)
+                        ? 'border-amber-400 bg-amber-50'
+                        : 'border-[#E5E5E5] bg-white'
+                      }`}
+                  >
+                    <div className="w-10 h-10 bg-amber-500/10 rounded-lg flex items-center justify-center">
+                      <Package className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="font-medium block text-amber-800">
+                        {transportMode === 'By Hand' ? 'By Hand (Self Pickup)' : 'Purchase Order (Bulk)'}
+                      </span>
+                      <span className="text-xs text-amber-700">
+                        {transportMode === 'By Hand'
+                          ? `Pay ₹${total} at pickup point`
+                          : `Our team will contact for ₹${bulkSubtotal}`
+                        }
+                      </span>
+                    </div>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${(transportMode === 'By Hand' && paymentChoiceByHand === 'PURCHASE_ORDER') || (transportMode !== 'By Hand' && hasBulkItems)
+                        ? 'border-amber-500'
+                        : 'border-[#CCCCCC]'
+                      }`}>
+                      {(transportMode === 'By Hand' && paymentChoiceByHand === 'PURCHASE_ORDER' || (transportMode !== 'By Hand' && hasBulkItems)) && (
+                        <div className="w-2.5 h-2.5 bg-amber-500 rounded-full" />
+                      )}
                     </div>
                   </button>
                 )}
               </div>
 
+              {/* Place Order Button */}
               <Button
                 onClick={handlePlaceOrder}
                 disabled={isPlacingOrder || !defaultAddress}
-                className="w-full btn-primary py-4 h-14 text-lg"
+                className={`w-full py-4 h-14 text-lg ${hasBulkItems && !hasRegularItems
+                  ? 'bg-amber-500 hover:bg-amber-600 text-white'
+                  : 'btn-primary'
+                  }`}
               >
                 {isPlacingOrder ? (
                   <span className="flex items-center gap-2">
                     <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    {isBulkOrder ? 'Submitting Enquiry...' : 'Placing Order...'}
+                    {hasBulkItems ? 'Submitting Enquiry...' : 'Placing Order...'}
                   </span>
                 ) : (
                   <span className="flex items-center justify-between w-full">
-                    <span>{isBulkOrder ? 'Submit Bulk Enquiry' : 'Place Order'}</span>
+                    <span>
+                      {hasBulkItems && !hasRegularItems
+                        ? 'Submit Bulk Enquiry'
+                        : hasBulkItems && hasRegularItems
+                          ? 'Place Order & Submit Enquiry'
+                          : 'Place Order'
+                      }
+                    </span>
                     <span className="flex items-center gap-2">
                       ₹{total}
                       <ChevronRight className="w-5 h-5" />
@@ -394,8 +535,6 @@ export default function CartPage() {
                 </p>
               )}
             </div>
-
-            {/* Removed the free delivery banner as delivery is currently mocked to 0 */}
           </div>
         </div>
       </div>

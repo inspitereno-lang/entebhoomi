@@ -52,7 +52,8 @@ export default function ProductDetailPage() {
             isAvailable: p.isAvailable !== undefined ? p.isAvailable : true,
             stock: p.quantity !== undefined ? p.quantity : 0,
             discount: p.discount || 0,
-            originalPrice: p.originalPrice || Math.round(p.price * 1.2)
+            originalPrice: p.originalPrice || Math.round(p.price * 1.2),
+            bulkThreshold: p.bulkThreshold || 20
           });
         } else {
           // Fallback to mock if not found in backend
@@ -113,7 +114,10 @@ export default function ProductDetailPage() {
 
     const cartItem = cart.find(item => item.product.id === product.id);
 
-    if (quantity > product.stock) {
+    const threshold = product.bulkThreshold || 20;
+    const isBulk = quantity > threshold;
+
+    if (!isBulk && quantity > product.stock) {
       toast.error(`Cannot add more items. Only ${product.stock} left in stock.`);
       return;
     }
@@ -262,8 +266,11 @@ export default function ProductDetailPage() {
                       }
                       const val = parseInt(e.target.value, 10);
                       if (!isNaN(val)) {
-                        if (val > product.stock) {
-                          toast.error(`Only ${product.stock} items available`);
+                        const threshold = product.bulkThreshold || 20;
+                        const isBulk = val > threshold;
+
+                        if (!isBulk && val > product.stock) {
+                          toast.error(`Only ${product.stock} items available for regular orders`);
                           setQuantity(product.stock);
                           if (cartItem) updateQuantity(product.id, product.stock);
                         } else {
@@ -288,11 +295,14 @@ export default function ProductDetailPage() {
                   />
                   <button
                     onClick={() => {
-                      if (quantity >= product.stock) {
+                      const newQuantity = quantity + 1;
+                      const threshold = product.bulkThreshold || 20;
+                      const isBulk = newQuantity > threshold;
+
+                      if (!isBulk && newQuantity > product.stock) {
                         toast.error('Out of stock');
                         return;
                       }
-                      const newQuantity = quantity + 1;
                       setQuantity(newQuantity);
                       const cartItem = cart.find(item => item.product.id === product.id);
                       if (cartItem) updateQuantity(product.id, newQuantity);
@@ -311,13 +321,13 @@ export default function ProductDetailPage() {
               </div>
 
               {/* Bulk Order Badge */}
-              {quantity >= 20 && (
+              {product.bulkThreshold && quantity > product.bulkThreshold && (
                 <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5">
                   <Package className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-semibold text-amber-800">Bulk Order</p>
                     <p className="text-xs text-amber-700 mt-0.5">
-                      20+ items will be processed as a Purchase Order. Our team will contact you for best pricing & delivery.
+                      {product.bulkThreshold}+ items will be processed as a Purchase Order. Our team will contact you for best pricing & delivery.
                     </p>
                   </div>
                 </div>

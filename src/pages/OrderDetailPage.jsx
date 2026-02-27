@@ -22,8 +22,8 @@ const statusLabels = {
 };
 
 const getRefundStatus = (order, item) => {
-  // If order is COD, no refund
-  if (order.paymentMethod === 'COD') return null;
+  // If order is COD or item is bulk, no refund
+  if (order.paymentMethod === 'COD' || item.isBulk) return null;
 
   // If item is not cancelled, no refund tracking needed (unless whole order cancelled)
   if (item.status !== 'Cancelled' && order.status !== 'Cancelled') return null;
@@ -161,7 +161,18 @@ export default function OrderDetailPage() {
             <div className="bg-white rounded-2xl p-6 shadow-sm">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h1 className="text-xl font-bold text-[#1A1A1A]">{order.orderId}</h1>
+                  <div className="flex items-center gap-3">
+                    <h1 className="text-xl font-bold text-[#1A1A1A]">{order.orderId}</h1>
+                    {order.isBulkOrder && (
+                      <div className="relative group">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full blur opacity-40 group-hover:opacity-60 transition duration-1000 group-hover:duration-200 animate-pulse" />
+                        <div className="relative px-3 py-1 bg-white ring-1 ring-amber-200 rounded-full flex items-center gap-1.5 shadow-sm">
+                          <Package className="w-3.5 h-3.5 text-amber-600" />
+                          <span className="text-[10px] font-black uppercase tracking-widest text-amber-700">Mixed Bulk Order</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   <p className="text-sm text-[#666666] mt-1">
                     Ordered on{' '}
                     {new Date(order.orderDate).toLocaleDateString('en-IN', {
@@ -252,6 +263,15 @@ export default function OrderDetailPage() {
                               <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[itemStatus]}`}>
                                 {statusLabels[itemStatus] || itemStatus}
                               </span>
+                              {item.isBulk ? (
+                                <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-bold uppercase tracking-wider border border-amber-200">
+                                  Bulk Item
+                                </span>
+                              ) : (
+                                <span className="px-2 py-1 bg-[#f1f7e8] text-[#5bab00] rounded-full text-[10px] font-bold uppercase tracking-wider border border-[#5bab00]/20">
+                                  Regular Item
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -326,9 +346,21 @@ export default function OrderDetailPage() {
             <div className="bg-white rounded-2xl p-6 shadow-sm">
               <h3 className="font-semibold text-[#1A1A1A] mb-4 flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-[#5bab00]" />
-                Payment Method
+                Payment & Logistics
               </h3>
-              <p className="text-[#666666]">{order.paymentMethod}</p>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs font-semibold text-[#666666] uppercase tracking-wider mb-1">Payment Method</p>
+                  <p className="text-[#1A1A1A] font-medium">{order.paymentMethod}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-[#666666] uppercase tracking-wider mb-1">Mode of Transport</p>
+                  <p className="text-[#1A1A1A] font-medium flex items-center gap-1.5">
+                    <Truck className="w-4 h-4 text-[#5bab00]" />
+                    {order.transportMode}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -340,29 +372,60 @@ export default function OrderDetailPage() {
                   <span>Item Total</span>
                   <span>₹{order.subtotal}</span>
                 </div>
-                <div className="flex justify-between text-[#666666]">
-                  <span className="flex items-center gap-1">
-                    <Truck className="w-4 h-4" />
-                    Delivery Fee
-                  </span>
-                  <span className={order.deliveryFee === 0 ? 'text-[#22C55E]' : ''}>
-                    {order.deliveryFee === 0 ? 'FREE' : `₹${order.deliveryFee}`}
-                  </span>
-                </div>
-                <div className="flex justify-between text-[#666666]">
-                  <span>Taxes & Charges</span>
-                  <span>₹{order.taxes}</span>
-                </div>
+                {order.deliveryFee > 0 && (
+                  <div className="flex justify-between text-[#666666]">
+                    <span className="flex items-center gap-1">
+                      <Truck className="w-4 h-4" />
+                      Delivery Fee
+                    </span>
+                    <span>₹{order.deliveryFee}</span>
+                  </div>
+                )}
+                {order.taxes > 0 && (
+                  <div className="flex justify-between text-[#666666]">
+                    <span>Taxes & Charges</span>
+                    <span>₹{order.taxes}</span>
+                  </div>
+                )}
+
+                {/* Detailed Payment Breakdown */}
+                {(order.regularAmount > 0 || order.bulkAmount > 0) && (
+                  <div className="mt-4 pt-4 border-t border-dashed border-[#E5E5E5] space-y-2">
+                    {order.regularAmount > 0 && (
+                      <div className="flex justify-between items-center bg-[#f1f7e8] p-2 rounded-lg">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold text-[#5bab00] uppercase tracking-wider">Online Paid</span>
+                          <span className="text-xs text-[#4b5f3e]">Regular Items</span>
+                        </div>
+                        <span className="font-bold text-[#5bab00]">₹{order.regularAmount}</span>
+                      </div>
+                    )}
+                    {order.bulkAmount > 0 && (
+                      <div className="flex justify-between items-center bg-amber-50 p-2 rounded-lg">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">To Be Settled</span>
+                          <span className="text-xs text-amber-600">Bulk Enquiry</span>
+                        </div>
+                        <span className="font-bold text-amber-700">₹{order.bulkAmount}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
+
               <div className="border-t border-[#E5E5E5] pt-4">
-                <div className="flex justify-between">
-                  <span className="font-semibold text-[#1A1A1A]">Total</span>
-                  <span className="font-bold text-xl text-[#5bab00]">
-                    ₹{order.total}
-                  </span>
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold text-[#1A1A1A]">Total Bill</span>
+                  <div className="text-right">
+                    <span className="font-black text-2xl text-[#151d0c]">
+                      ₹{order.total}
+                    </span>
+                    <p className="text-[10px] text-[#666666] font-medium uppercase tracking-tighter">Amount inclusive of taxes</p>
+                  </div>
                 </div>
               </div>
             </div>
+
 
             <div className="space-y-3">
               {(() => {
@@ -382,13 +445,7 @@ export default function OrderDetailPage() {
                     <Check className="w-4 h-4 mr-2" />
                     Download Invoice
                   </Button>
-                ) : (
-                  <div className="text-center p-4 bg-[#FFF3ED] rounded-lg border border-[#E85A24]">
-                    <p className="text-sm text-[#E85A24] font-medium">
-                      📄 Invoice will be available after vendor accepts your items
-                    </p>
-                  </div>
-                );
+                ) : null;
               })()}
             </div>
           </div>

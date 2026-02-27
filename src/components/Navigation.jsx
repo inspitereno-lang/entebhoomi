@@ -58,18 +58,46 @@ export default function Navigation() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Separate hash scrolling effect to run on every location change
+  // Robust hash scrolling logic with retry mechanism for cross-page navigation
   useEffect(() => {
-    if (location.hash === '#landowners') {
-      const element = document.getElementById('landowners');
-      if (element) {
-        // Small delay to ensure the DOM is ready and page-transition is done
-        const timer = setTimeout(() => {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }, 200);
-        return () => clearTimeout(timer);
+    const handleHashScroll = () => {
+      const hash = window.location.hash;
+      if (hash === '#landowners') {
+        let attempts = 0;
+        const maxAttempts = 50; // Try for up to 5 seconds
+
+        const tryScroll = () => {
+          const element = document.getElementById('landowners');
+          if (element) {
+            const headerOffset = 100;
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            });
+            return true;
+          }
+          return false;
+        };
+
+        // If it doesn't find it immediately, poll for it
+        if (!tryScroll()) {
+          const intervalId = setInterval(() => {
+            attempts++;
+            if (tryScroll() || attempts >= maxAttempts) {
+              clearInterval(intervalId);
+            }
+          }, 100);
+        }
       }
-    }
+    };
+
+    // Handle initial load and hash changes
+    handleHashScroll();
+    window.addEventListener('hashchange', handleHashScroll);
+    return () => window.removeEventListener('hashchange', handleHashScroll);
   }, [location.hash, location.pathname]);
 
   // Debounced search effect
@@ -327,47 +355,89 @@ export default function Navigation() {
             <div className="section-container py-6 lg:py-12">
               {/* Desktop Premium Grid - Hidden on mobile */}
               <div className="hidden lg:grid grid-cols-3 gap-8">
-                {navLinks.map((link, index) => (
-                  <Link
-                    key={link.path}
-                    to={link.path}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`group flex items-start gap-5 p-6 rounded-2xl transition-all duration-300 hover:bg-[#f1f7e8] bg-[#fafafa] border border-transparent hover:border-[#5bab00]/20 animate-fade-in`}
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <div className="size-12 rounded-xl bg-white shadow-sm flex items-center justify-center text-[#5bab00] group-hover:scale-110 transition-transform duration-300">
-                      <span className="material-symbols-outlined text-2xl">{link.icon}</span>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <span className={`text-lg font-black transition-colors ${location.pathname === link.path || (link.path.startsWith('/#') && location.pathname === '/' && location.hash === link.path.substring(2))
-                        ? 'text-[#5bab00]'
-                        : 'text-[#1A1A1A] group-hover:text-[#5bab00]'
-                        }`}>
-                        {link.label}
-                      </span>
-                      <span className="text-sm text-[#666666] font-medium leading-tight">
-                        {link.desc}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
+                {navLinks.map((link, index) => {
+                  const isHash = link.path.startsWith('/#');
+                  const targetId = isHash ? link.path.substring(2) : null;
+
+                  const handleClick = (e) => {
+                    if (isHash && location.pathname === '/') {
+                      e.preventDefault();
+                      const element = document.getElementById(targetId);
+                      if (element) {
+                        const headerOffset = 100;
+                        const elementPosition = element.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                        setIsMobileMenuOpen(false);
+                      }
+                    } else {
+                      setIsMobileMenuOpen(false);
+                    }
+                  };
+
+                  return (
+                    <Link
+                      key={link.path}
+                      to={link.path}
+                      onClick={handleClick}
+                      className={`group flex items-start gap-5 p-6 rounded-2xl transition-all duration-300 hover:bg-[#f1f7e8] bg-[#fafafa] border border-transparent hover:border-[#5bab00]/20 animate-fade-in`}
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
+                      <div className="size-12 rounded-xl bg-white shadow-sm flex items-center justify-center text-[#5bab00] group-hover:scale-110 transition-transform duration-300">
+                        <span className="material-symbols-outlined text-2xl">{link.icon}</span>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <span className={`text-lg font-black transition-colors ${location.pathname === link.path || (isHash && location.pathname === '/' && location.hash === `#${targetId}`)
+                          ? 'text-[#5bab00]'
+                          : 'text-[#1A1A1A] group-hover:text-[#5bab00]'
+                          }`}>
+                          {link.label}
+                        </span>
+                        <span className="text-sm text-[#666666] font-medium leading-tight">
+                          {link.desc}
+                        </span>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
 
               {/* Mobile Classic List - Visible only on mobile */}
               <div className="flex lg:hidden flex-col gap-1">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.path}
-                    to={link.path}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`px-4 py-4 text-lg font-bold transition-colors rounded-xl ${location.pathname === link.path || (link.path.startsWith('/#') && location.pathname === '/' && location.hash === link.path.substring(2))
-                      ? 'bg-[#f1f7e8] text-[#5bab00]'
-                      : 'text-[#1A1A1A] hover:bg-[#F5F5F5]'
-                      }`}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+                {navLinks.map((link) => {
+                  const isHash = link.path.startsWith('/#');
+                  const targetId = isHash ? link.path.substring(2) : null;
+
+                  const handleClick = (e) => {
+                    if (isHash && location.pathname === '/') {
+                      e.preventDefault();
+                      const element = document.getElementById(targetId);
+                      if (element) {
+                        const headerOffset = 100;
+                        const elementPosition = element.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                        setIsMobileMenuOpen(false);
+                      }
+                    } else {
+                      setIsMobileMenuOpen(false);
+                    }
+                  };
+
+                  return (
+                    <Link
+                      key={link.path}
+                      to={link.path}
+                      onClick={handleClick}
+                      className={`px-4 py-4 text-lg font-bold transition-colors rounded-xl ${location.pathname === link.path || (isHash && location.pathname === '/' && location.hash === `#${targetId}`)
+                        ? 'bg-[#f1f7e8] text-[#5bab00]'
+                        : 'text-[#1A1A1A] hover:bg-[#F5F5F5]'
+                        }`}
+                    >
+                      {link.label}
+                    </Link>
+                  );
+                })}
               </div>
 
               {!isRegistered && (

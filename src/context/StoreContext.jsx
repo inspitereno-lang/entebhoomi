@@ -77,11 +77,16 @@ export const normalizeOrders = (backendOrders) => {
       status: order.orderStatus || order.status || 'Pending',
       total: order.totalAmount || order.amount || 0,
       subtotal: order.subtotal || order.totalAmount || order.amount || 0,
+      regularAmount: order.regularAmount || 0,
+      bulkAmount: order.bulkAmount || 0,
+      isBulkOrder: order.isBulkOrder || false,
+      transportMode: order.transportMode || 'Delivery Team',
       deliveryFee: order.deliveryFee || 0,
       taxes: order.taxes || 0,
       items: items.map(item => ({
         productId: item.productId?._id || item.productId, // Preserve the actual productId
         status: item.status || 'Pending', // Preserve item status
+        isBulk: item.isBulk || false,
         product: {
           id: item.productId?._id || item.productId,
           name: item.productName || item.productId?.productName || 'Product',
@@ -548,8 +553,9 @@ export function StoreProvider({ children }) {
       // ═══════════════════════════════════════════════════════════════
       console.log('📦 STEP 1: Creating order on backend...');
       const addressId = orderData.deliveryAddress._id || orderData.deliveryAddress.id;
-      const transportMode = orderData.transportMode || 'Professional Courier';
-      const orderResult = await createOrderApi(addressId, transportMode);
+      const transportMode = orderData.transportMode || 'Delivery Team';
+      const paymentMethod = orderData.paymentMethod;
+      const orderResult = await createOrderApi(addressId, transportMode, paymentMethod);
 
       if (!orderResult?.success) {
         throw new Error(orderResult?.msg || 'Failed to create order');
@@ -558,21 +564,22 @@ export function StoreProvider({ children }) {
       const { razorpay, order } = orderResult;
 
       // ═══════════════════════════════════════════════════════════════
-      // BULK ORDER PATH — skip Razorpay entirely
+      // PURCHASE ORDER PATH — Backend didn't create Razorpay order
+      // This means ALL items are bulk → skip payment, team will contact
       // ═══════════════════════════════════════════════════════════════
-      if (orderResult.isBulk) {
-        console.log('📦 Bulk order detected — skipping Razorpay');
-        toast.success('Bulk order submitted! Our team will contact you.');
+      if (!razorpay || !razorpay.orderId) {
+        console.log('📦 Purchase Order Path (No Razorpay) — Self-pickup or All Bulk');
+        if (transportMode === 'By Hand') {
+          toast.success('Order placed for self-pickup!');
+        } else {
+          toast.success('Bulk enquiry submitted! Our team will contact you.');
+        }
         await fetchCart();
         await fetchOrders();
         return {
           id: order._id || order.orderId,
-          isBulk: true
+          isBulk: order.bulkAmount > 0
         };
-      }
-
-      if (!razorpay || !razorpay.orderId) {
-        throw new Error('Invalid order response from server');
       }
 
       console.log('✅ Order created:', {
@@ -695,7 +702,8 @@ export function StoreProvider({ children }) {
                 // Prepare result with orderedCart
                 const orderResult = {
                   id: finalOrderId,
-                  orderedCart: orderedCart
+                  orderedCart: orderedCart,
+                  isBulk: order.isBulkOrder
                 };
                 console.log('✅ Returning orderedCart with', orderedCart.totalItems, 'items from backend order');
 

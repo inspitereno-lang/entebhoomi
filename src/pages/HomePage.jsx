@@ -67,7 +67,8 @@ export default function HomePage() {
             image: normalizeImageUrl(p.image || (p.images && p.images.length > 0 ? p.images[0] : null)),
             category: p.categoryName || p.category?.name || p.category?.categoryName || p.category || 'Uncategorized',
             shop: p.storeName || p.storeId?.storeName || p.storeId?.businessName || p.storeDetails?.storeName || p.shop || 'Unknown Store',
-            stock: p.quantity !== undefined ? p.quantity : 0
+            stock: p.quantity !== undefined ? p.quantity : 0,
+            bulkThreshold: p.bulkThreshold || 20
           }));
           setFeaturedProducts(normalizedFeatured);
         }
@@ -356,10 +357,9 @@ export default function HomePage() {
                           e.stopPropagation();
                           handleAddToCart(product);
                         }}
-                        disabled={product.stock <= 0}
-                        className="mt-2 w-full rounded-lg bg-[#eef4e6] py-2 text-sm font-bold text-[#5bab00] hover:bg-[#5bab00] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="mt-2 w-full rounded-lg bg-[#eef4e6] py-2 text-sm font-bold text-[#5bab00] hover:bg-[#5bab00] hover:text-white transition-colors"
                       >
-                        {product.stock <= 0 ? 'Out of Stock' : 'Add to Cart'}
+                        {product.stock <= 0 ? 'Bulk Enquiry' : 'Add to Cart'}
                       </button>
                     )}
                   </div>

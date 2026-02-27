@@ -29,9 +29,10 @@ export const fetchOrderByIdApi = async (orderId) => {
  * Create order on backend
  * @param {string} addressId - Delivery address ID
  * @param {string} transportMode - Mode of transport (e.g. 'Professional Courier', 'Hand', 'Delivery Team')
+ * @param {string} paymentMethod - Optional payment method ('RAZORPAY' or 'PURCHASE_ORDER')
  */
-export const createOrderApi = async (addressId, transportMode) => {
-    const response = await api.post('/order', { addressId, transportMode });
+export const createOrderApi = async (addressId, transportMode, paymentMethod) => {
+    const response = await api.post('/order', { addressId, transportMode, paymentMethod });
     return response.data;
 };
 
