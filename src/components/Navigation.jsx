@@ -180,10 +180,14 @@ export default function Navigation() {
         <div className="flex items-center justify-between h-20">
           <Link
             to="/"
-            className="flex items-center gap-2 h-12 group shrink-0"
+            className="flex items-center gap-3 h-12 group shrink-0"
           >
-            <span className="material-symbols-outlined text-3xl text-[#5bab00] transition-transform duration-300 group-hover:scale-110">eco</span>
-            <h2 className="text-2xl font-bold text-[#151d0c] group-hover:text-[#5bab00] transition-colors">Ente Bhoomi</h2>
+            <img 
+              src="/ente-bhoomi-logo.png" 
+              alt="Ente Bhoomi Logo" 
+              className="h-16 w-16 object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"
+            />
+            <h2 className="text-2xl font-bold text-[#5bab00] transition-colors">Ente Bhoomi</h2>
           </Link>
 
           {/* Desktop Nav links removed in favor of Menu button */}

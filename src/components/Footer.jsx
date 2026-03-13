@@ -7,9 +7,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-12 md:grid-cols-3 mb-16">
           {/* Brand & Quote */}
           <div className="space-y-6">
-            <div className="flex items-center gap-2 text-white group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-              <span className="material-symbols-outlined text-4xl text-[#5bab00] group-hover:scale-110 transition-transform">eco</span>
-              <h2 className="text-3xl font-black tracking-tight group-hover:text-[#5bab00] transition-colors">Ente Bhoomi</h2>
+            <div className="flex items-center gap-3 text-white group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              <img
+                src="/ente bhoomi  copy.jpg"
+                alt="Ente Bhoomi Logo"
+                className="h-20 w-auto object-contain transition-transform duration-300 group-hover:scale-110 rounded-lg"
+              />
+              <h2 className="text-3xl font-black tracking-tight text-[#5bab00] transition-colors">Ente Bhoomi</h2>
             </div>
             <p className="text-base leading-relaxed text-white/70">
               A Kerala-based agricultural initiative connecting farmers and consumers. We are committed to making farming profitable, sustainable, and community-driven.
@@ -42,11 +46,11 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3 group">
                 <span className="material-symbols-outlined text-[#5bab00] group-hover:scale-110 transition-transform">mail</span>
-                <span>support@entebhoomi.com</span>
+                <span>entebhoomiofficial@gmail.com</span>
               </li>
               <li className="flex items-center gap-3 group">
                 <span className="material-symbols-outlined text-[#5bab00] group-hover:rotate-12 transition-transform">call</span>
-                <span>+91 00000 00000</span>
+                <span>+91 9188910005</span>
               </li>
             </ul>
           </div>

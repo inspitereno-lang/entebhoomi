@@ -19,8 +19,8 @@ const teamMembers = [
     name: "Dr. G. ANILKUMAR",
     designation: "Founder & Managing Partner - Rohini Agro Science",
     image: "/WhatsApp Image 2026-03-13 at 09.39.40.jpeg",
-    shortBio: "Chemical Engineer by Profession with Executive Programme in Business Management (EBPM) from IIM Lucknow. Founder of Rohini Agro Science established in 2011.",
-    fullBio: `• Chemical Engineer by Profession.\n• Executive Programme in Business Management (EBPM) - IIM Lucknow.\n• Founder of Rohini Agro Science - An Organic Plant Growth Regulator, Bio-stimulants Manufacturing Company, Established in 2011.\n• Done research in Pune for several years to find out the best solution in Organic Farming for plant growth regulators and soil nourishment.\n• Responsiveness and Our main motto is “Empower and Educate farmers to adopt organic farming through which we can make a healthy world".\n• Innovation and Research Focus - Dedicated last 30 years towards research and development of organic farming, Empowerment by continuous Training & Education.\n• Upliftment of farmers, providing unique solutions in organic farming which emphasizes on customer centric approach\n• Social Impact – Spreading organic farming practices, improved crop quality and yield, Health and safety of Farmers and consumers, Environmental Conservation.\n• A Philanthropist – Responsiveness to social needs.\n• Successful Entrepreneur & Passionate Organic Farmer.\n• 1st Company in the State of Kerala having G2 License.`,
+    shortBio: "A Chemical Engineer by profession with an Executive Programme in Business Management (EBPM) from IIM Lucknow, he is the Founder of Rohini Agro Science established in 2011.",
+    fullBio: "A Chemical Engineer by profession with an Executive Programme in Business Management (EBPM) from IIM Lucknow, he is the Founder of Rohini Agro Science, an organic plant growth regulator and bio-stimulants manufacturing company established in 2011. With over 30 years dedicated to research and development in organic farming, he has conducted extensive research in Pune to identify effective solutions for plant growth regulation and soil nourishment. His mission is driven by the motto, “Empower and Educate Farmers to Adopt Organic Farming, Through Which We Can Make a Healthy World.” Through continuous innovation, training, and farmer education, he focuses on providing unique, customer-centric solutions that support sustainable agriculture and the upliftment of farming communities. His work promotes improved crop quality and yield while prioritizing the health and safety of farmers, consumers, and the environment. A passionate organic farmer, successful entrepreneur, and philanthropist, he is committed to social responsibility and environmental conservation. Notably, Rohini Agro Science is the first company in the state of Kerala to receive the G2 License, marking a significant milestone in the organic agricultural sector.",
     contact: {
       address: "Plot No:16, Kinfra Hi-Tech Park (Bio-Tech Zone), Kalamassery, Kochi - 683503 Kerala, India",
     }
@@ -35,11 +35,11 @@ export default function TeamSection() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-16 text-center">
           <h2 className="text-3xl font-black text-[#151d0c] md:text-4xl lg:text-5xl leading-tight inline-block relative">
-            Our Expert Team
+            Our Advisors
             <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-24 h-1.5 bg-[#5bab00] rounded-full"></div>
           </h2>
           <p className="mt-8 text-lg text-[#4b5f3e] leading-relaxed max-w-3xl mx-auto">
-            Our team brings together decades of experience in agricultural marketing, chemical engineering, and organic farming to empower farmers and build a healthier world.
+            Our advisors bring together decades of experience in agricultural marketing, chemical engineering, and organic farming to empower farmers and build a healthier world.
           </p>
         </div>
 
@@ -124,7 +124,7 @@ export default function TeamSection() {
                   <p className="text-lg font-bold text-[#5bab00] mt-1">{selectedMember.designation}</p>
                 </div>
 
-                <div className="space-y-6 text-[#4b5f3e] leading-relaxed text-lg whitespace-pre-line">
+                <div className="space-y-6 text-[#4b5f3e] leading-relaxed text-lg whitespace-pre-line text-justify">
                   {selectedMember.fullBio}
                 </div>
 

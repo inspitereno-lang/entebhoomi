@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { toast } from '../components/ui/sonner';
+import { toast } from '../components/ui/sonner.jsx';
 import { mockUser, mockAddresses, mockOrders } from '../data/mockData.js';
 import { normalizeImageUrl } from '../utils/utils.js';
 
@@ -11,16 +11,16 @@ import {
   removeFromCartApi,
   syncCartApi,
   normalizeCartItems
-} from '../services/cartService';
+} from '../services/cartService.js';
 
 import {
   fetchWishlistItems,
   addToWishlistApi,
   removeFromWishlistApi,
   normalizeWishlistItems
-} from '../services/wishlistService';
+} from '../services/wishlistService.js';
 
-import { loadRazorpay } from '../utils/razorpay';
+import { loadRazorpay } from '../utils/razorpay.js';
 
 import {
   requestOtpApi,
@@ -29,14 +29,14 @@ import {
   updateUserDetailsApi,
   normalizeUserData,
   normalizeAddresses
-} from '../services/userService';
+} from '../services/userService.js';
 
 import {
   addAddressApi,
   updateAddressApi,
   deleteAddressApi,
   setDefaultAddressApi
-} from '../services/addressService';
+} from '../services/addressService.js';
 
 import {
   getPaymentKeyApi,
@@ -46,11 +46,11 @@ import {
   createRazorpayOptions,
   fetchOrdersApi,
   fetchOrderByIdApi
-} from '../services/orderService';
+} from '../services/orderService.js';
 
 import {
   fetchProductDetailsApi
-} from '../services/productService';
+} from '../services/productService.js';
 
 /**
  * Normalize order data from backend to frontend format
@@ -240,7 +240,7 @@ export function StoreProvider({ children }) {
     try {
       const data = await requestOtpApi(phone);
       console.log("OTP received (debug):", data.otp);
-      return true;
+      return data;
     } catch (error) {
       console.error('Request OTP error:', error);
       throw error;

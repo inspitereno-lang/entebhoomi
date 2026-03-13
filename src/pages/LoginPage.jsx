@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState('phone');
+  const [receivedOtp, setReceivedOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login, requestOTP } = useStore();
   const inputRefs = useRef([]);
@@ -23,7 +24,10 @@ export default function LoginPage() {
     }
     setIsLoading(true);
     try {
-      await requestOTP(phone);
+      const response = await requestOTP(phone);
+      if (response?.otp) {
+        setReceivedOtp(response.otp);
+      }
       setStep('otp');
       toast.success('OTP sent successfully!');
     } catch (error) {
@@ -71,8 +75,15 @@ export default function LoginPage() {
             <p className="text-[#666666] mt-2">
               {step === 'phone'
                 ? 'Enter your phone number to continue'
-                : 'Enter the OTP sent to your phone'}
+                : 'Enter the OTP sent to your phone on here'}
             </p>
+            {step === 'otp' && receivedOtp && (
+              <div className="mt-4 p-3 bg-[#5bab00]/10 rounded-xl border border-[#5bab00]/20">
+                <p className="text-sm font-medium text-[#5bab00]">
+                  Debug OTP: <span className="font-bold text-lg ml-1 tracking-widest">{receivedOtp}</span>
+                </p>
+              </div>
+            )}
           </div>
 
           {step === 'phone' ? (

@@ -18,11 +18,11 @@ import {
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext.jsx';
 import { Button } from '../components/ui/button.jsx';
-import { toast } from '../components/ui/sonner';
+import { toast } from '../components/ui/sonner.jsx';
 import { normalizeImageUrl } from '../utils/utils.js';
-import api from '../api/axios';
-import LandownerSection from '../components/LandownerSection';
-import TeamSection from '../components/TeamSection';
+import api from '../api/axios.js';
+import LandownerSection from '../components/LandownerSection.jsx';
+import TeamSection from '../components/TeamSection.jsx';
 
 export default function HomePage() {
   const navigate = useNavigate();
