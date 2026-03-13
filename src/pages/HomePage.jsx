@@ -22,6 +22,7 @@ import { toast } from '../components/ui/sonner';
 import { normalizeImageUrl } from '../utils/utils.js';
 import api from '../api/axios';
 import LandownerSection from '../components/LandownerSection';
+import TeamSection from '../components/TeamSection';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -382,6 +383,7 @@ export default function HomePage() {
       </section>
 
       <LandownerSection />
+      <TeamSection />
 
 
 
